@@ -1,0 +1,28 @@
+[
+    {
+        "certificado": "E-022-03-14922",
+        "fecha": "2022-03-14",
+        "qr": "421396",
+        "denominacion": "Planchas a vapor",
+        "pais": "China",
+        "fabricante": "Cuori Electrical Appliances (Group) Co., Ltd.",
+        "direccion": "No. 48 Developing Road, Zhouxiang Town, Cixi City, Zhejiang, China.",
+        "marca": "MADEMSA/SOMELA",
+        "modelo": "SIR20/MIR20",
+        "contacto": "Carolina Ibañez",
+        "cliente": "ElectroluX"
+    },
+    {        
+        "certificado": "E-022-03-14988",
+        "fecha": "2022-03-14",
+        "qr": "427806",
+        "denominacion": "Planchas a vapor",
+        "pais": "China",
+        "fabricante": "Cuori Electrical Appliances (Group) Co., Ltd.",
+        "direccion": "No. 48 Developing Road, Zhouxiang Town, Cixi City, Zhejiang, China.",
+        "marca": "MADEMSA/SOMELA",
+        "modelo": "SIR30/MIR30",
+        "contacto": "Carolina Ibañez",
+        "cliente": "ElectroluX"
+        }
+]
