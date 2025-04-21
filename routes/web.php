@@ -15,12 +15,24 @@ Route::get('/{lote}/{muestras}/{fila}/{columna}', [V2Controller::class, 'getview
 
 Route::get('/', function () {
     $muestreos = Muestreo::orderBy('id', 'desc')->get();
+    $muestreos_iniciados = $muestreos->filter(function ($muestreo) {
+        return $muestreo->muestreo != null && $muestreo->trazabilidad == null;
+    });
+    
+    $muestreos_finalizados = $muestreos->filter(function ($muestreo) {
+        return $muestreo->muestreo != null && $muestreo->trazabilidad != null;
+    });
     return view('home', [
-        'muestreos' => $muestreos
+        'muestreos_iniciados' => $muestreos_iniciados,
+        'muestreos_finalizados' => $muestreos_finalizados,
     ]);
 })->name('home');
 
 Route::get('/form', [FormController::class, 'form']);
+
+Route::get('/input', function () {
+    return view('preview');
+    })->name('input');
 
 Route::get('/toexcel/{lote}/{muestras}/{fila}/{columna}',[ExportToExcelController::class, 'toExcel']);
 Route::get('/topdf/{lote}/{muestras}/{fila}/{columna}', [V2Controller::class, 'toPdf']);
@@ -38,9 +50,9 @@ Route::get('/2', function () {
     return view('sistema2', [
         'certificados' => Certificate::where('active', 1)->get()
     ]);
-});
+})->name('sistema-dos');
 
 Route::get('/sistema2/{certificado}', [ApiController::class, 'sistema2'])->name('sistema2');
 
-Route::get('/2s', [CertificateController::class, 'index'])->name('certificates');
+//Route::get('/2s', [CertificateController::class, 'index'])->name('certificates');
    

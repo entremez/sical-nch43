@@ -15,10 +15,15 @@ class ApiController extends Controller
     public function search(Request $request, $id = null)
     {
         $ose = $request->search;
+
         if ($id != null) {
             $muestreo = Muestreo::find($id);
         } else {
             $muestreo = Muestreo::where('id_proceso', 'like', '%' . $ose . '%')->first();
+        }
+
+        if ($muestreo != null && $muestreo->trazabilidad != null) {
+            return redirect()->route('home')->with('error', 'Muestreo ya registrado.');
         }
 
         if ($muestreo != null) {
@@ -40,39 +45,27 @@ class ApiController extends Controller
                 'sistema' => $muestreo->sistema,
             ]);
         } else {
-            $response = Http::withHeaders([
-                'Accept' => 'application/json'
-            ])->get('http://192.168.0.248/api/buscar-ose?ose=' . $ose);
 
-            if ($response->ok()) {
-                $data = $response->json();
-                //dd($data);
-                $data_scp = $data['procesos'][0];
-                $data_detalles = $data['detalles'];
-
-                //dd($data_detalles);
-                $contacto = $data_detalles['Detalles'][4]['Valor'];
-                $lote = $data_detalles['Detalles'][5]['Valor'];
-                $sistema = '013';
-                $samples = $data_detalles['Cantidad muestras'];
+            $from_scp = ApiScpController::show($ose);
+            
+            if($from_scp != null){
 
                 return view('preview', [
-                    'id_proceso' => $data_scp['OSE'],
-                    'marca' => $data_scp['Marcas'],
-                    'modelo' => $data_scp['Modelos'],
-                    'lote' => $lote,
-                    'muestras' => $samples,
-                    'denominacion' => $data_scp['Denominación_Técnica'],
-                    'cliente' => $data_detalles['Cliente'],
-                    'direccion' => explode("/ ",$data_detalles['Direccion Marcado'])[1],
-                    'sistema' => $data_detalles['Detalles'][0]['Valor'],
-                    'trazabilidad' => $data_detalles['Detalles'][1]['Valor'],
-                    'fecha' => Carbon::parse($data_detalles['Detalles'][6]['Valor'])->format('Y-m-d'),
-                    'sistema' => $sistema,
-                    'contacto' => $contacto
+                    'id_proceso' => $from_scp[0],
+                    'marca' => $from_scp[3],
+                    'modelo' => $from_scp[4],
+                    'lote' => $from_scp[10],
+                    'muestras' => $from_scp[7],
+                    'denominacion' => $from_scp[2],
+                    'cliente' => $from_scp[5],
+                    'direccion' => $from_scp[6],
+                    'trazabilidad' => '',
+                    'fecha' => Carbon::parse($from_scp[11])->format('Y-m-d'),
+                    'sistema' => $from_scp[8],
+                    'contacto' => $from_scp[9]
                 ]);
-            } else {
-                return view('preview');
+            }else{
+                return view('preview')->with('error','Proceso no encontrado en SCP.');
             }
         }
     }
@@ -114,7 +107,10 @@ class ApiController extends Controller
 
     public function trace($id_muestreo)
     {
-        return view('trace', ['muestreo' => Muestreo::find($id_muestreo)]);
+        return view('trace', [
+            'muestreo' => Muestreo::find($id_muestreo),
+            'id' => $id_muestreo
+        ]);
     }
 
     public function end(Request $request)
@@ -138,7 +134,7 @@ class ApiController extends Controller
         $last_column = explode(" | ", $last_number->columna);
 
         $pdf = Pdf::loadView('welcome3', [
-            'data' => V2Controller::nch43($muestreo->lote, $muestreo->muestras, $muestreo->fila, $muestreo->columna),
+            'data' => $data,
             'lote' => $muestreo->lote,
             'muestras' => $muestreo->muestras,
             'inicial' => $initial_coordinate,
@@ -161,12 +157,14 @@ class ApiController extends Controller
         $canvas = $domPdf->get_canvas();
         $w = $canvas->get_width();
 
+        $name = "Muestreo ".$muestreo['id_proceso'].".pdf";
         $canvas->page_text($w - 100, 54, "Página {PAGE_NUM} de {PAGE_COUNT}", null, 10, [0, 0, 0]);
-        return $pdf->setPaper('letter', 'portrait')->download('nch43.pdf');
+        return $pdf->setPaper('letter', 'portrait')->download($name);
     }
 
     public function sistema2($certificado){
         $certificado = Certificate::where('certificado', $certificado)->first();
+        $sistema = explode("-", $certificado->certificado)[1];
         return view('preview', [
             'marca' => $certificado->marca,
             'modelo' => $certificado->modelo,
@@ -175,7 +173,7 @@ class ApiController extends Controller
             'contacto' => $certificado->contacto,
             'direccion' => $certificado->direccion,
             'direccion_fabrica' => $certificado->direccion_fabrica,
-            'sistema' => '022',
+            'sistema' => $sistema,
         ]);
     }
 }

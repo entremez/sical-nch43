@@ -2,21 +2,12 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-25L730V5WN"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'G-25L730V5WN');
-        </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Selección de muestras al azar de acuerdo con Norma Chilena NCh43">
     <meta name="keywords" content="Selección de muestras al azar, nch43, muestras">
     <meta name="author" content="mez">
-
+    
     <title>@yield('title')</title>
 
     <!-- Fonts -->
@@ -408,17 +399,37 @@
             }
         }
     </style>
-
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
             font-family: 'Nunito', sans-serif;
         }
     </style>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
 </head>
 
+<body class="bg-gray-100">
 
-@yield('content')
+    <header class="bg-gray-100 border-b py-4 mb-6 shadow-sm">
+        <div class="container mx-auto flex justify-between items-center px-4">
+          <h1 class="text-xl font-bold text-gray-800">Sical Ingenieros S.A. | NCh43</h1>
+          <nav class="space-x-4">
+            <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600">Inicio</a>
+            <a href="{{ route('sistema-dos') }}" class="text-gray-700 hover:text-blue-600">Sistema 2</a>
+          </nav>
+        </div>
+      </header>
+
+    <div class="w-full px-4">
+        @yield('content')
+    </div>
 
 
+    <footer class="bg-gray-100 border-t py-4 mt-6 shadow-inner">
+        <div class="container mx-auto text-center text-sm text-gray-600 px-4">
+          {{ date('Y') }} | Sical Ingenieros S.A.
+        </div>
+      </footer>
+      
+</body>
 </html>

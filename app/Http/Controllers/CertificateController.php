@@ -11,6 +11,6 @@ class CertificateController extends Controller
     public function index()
     {
 
-        dd(Excel::import(new CertificatesImport, public_path("sis2.xlsx")));
+        Excel::import(new CertificatesImport, public_path("sis2_e.xlsx"));
     }
 }
