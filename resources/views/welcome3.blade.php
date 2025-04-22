@@ -98,7 +98,7 @@
             <td>{{ $muestras }}</td>
           </tr>
           <tr>
-            <td>Sistema de certificación</td>
+            <td>Código sistema de certificación</td>
             <td>{{ $sistema }}</td>
             <td>Norma de muestreo</td>
             <td>NCh43</td>
