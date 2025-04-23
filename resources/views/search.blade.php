@@ -47,9 +47,9 @@
 
 
     @if($muestreos_iniciados->count() == 0 && $muestreos_finalizados->count() == 0)
-      <p class="text-gray-600">No hay muestreos registrados</p>
+      <h2 class="text-2xl font-semibold my-4">No existen registrados.</h2>
     @else
-        <h2 class="text-2xl font-semibold my-4">2. Coordenadas generadas.</h2>
+      <h2 class="text-2xl font-semibold my-4">2. Coordenadas generadas.</h2>
       <div class="overflow-x-auto">
         <table class="table-auto w-full text-left border-collapse">
           <thead>
