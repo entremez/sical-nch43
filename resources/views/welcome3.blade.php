@@ -58,7 +58,7 @@
   <body>
     <div id="header">
       <img class="imgHeader" src="{{ public_path('logo.png') }}" alt="logo sical" />
-      <p class="txtHeader">RCP-1-2 | Versión: 15 | XX.01.2025</p>
+      <p class="txtHeader">RCP-1-2 | Versión: 15 | 24.04.2025</p>
     </div>
     <div class="container">
       <h2>PLAN DE MUESTREO</h2>
