@@ -121,7 +121,7 @@
   
       <div class="mb-4">
         <label for="fecha" class="block font-medium mb-1">Fecha de muestreo</label>
-        <input required type="date" name="fecha" value="{{ $fecha ?? Carbon\Carbon::now()->format('Y-m-d') }}" class="w-full border rounded p-2">
+        <input required type="date" name="fecha" value="{{ $fecha ?? Carbon\Carbon::now()->format('Y-m-d') }}" class="w-full border rounded p-2" min="2025-04-24">
       </div>
   
       <div class="mb-4">
