@@ -23,7 +23,7 @@
       <input  required  min="1" max="20" name="column" class="shadow appearance-none border rounded w-2/6 py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="column" type="number" placeholder="15">
       
       <div class="flex items-center mb-4">
-        <input id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+        <input id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
         <label for="default-checkbox" class="ms-2 text-sm font-medium text-gray-900">Coordenadas aleatorias</label>
       </div>
 

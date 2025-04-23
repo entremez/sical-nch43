@@ -45,7 +45,7 @@
     <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
       <div class="overflow-hidden">
         <table class="min-w-full text-left text-sm font-light" >
-          <thead class="border-b font-medium dark:border-neutral-500">
+          <thead class="border-b font-medium">
             <tr>
               <th scope="col" class="px-6 py-1">#</th>
               <th scope="col" class="px-6 py-1">Fila</th>
@@ -58,7 +58,7 @@
           </thead>
           <tbody>
           @foreach(json_decode($data) as $key => $coordenada)
-            <tr class="border-b dark:border-neutral-500">
+            <tr class="border-b">
               <td class="whitespace-nowrap px-6 py-1 font-medium">{{ $coordenada->valido ? $aux++:'-'}}</td>
               <td class="whitespace-nowrap px-6 py-1 {{$coordenada->valido ?'':'line-through' }}">{{$coordenada->fila}}</td>
               <td class="whitespace-nowrap px-6 py-1 {{$coordenada->valido ?'':'line-through' }}">{{$coordenada->columna}}</td>
