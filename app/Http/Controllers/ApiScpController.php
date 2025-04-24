@@ -53,7 +53,7 @@ class ApiScpController extends Controller
 
 
         $grupos = $ingreso->solicitud->filter(function ($item) {
-            return $item->IdGrupo == 1 || $item->IdGrupo == 3 || $item->IdGrupo == 1007;
+            return $item->IdGrupo == 1 || $item->IdGrupo == 3 || $item->IdGrupo == 1007 || $item->IdGrupo == 2;
         });
 
         $valoresBuscados = [];
@@ -65,7 +65,7 @@ class ApiScpController extends Controller
                 foreach ($datosGrupo as $dato) {
                     if (isset($dato['Nombre']) && isset($dato['Valor'])) {
                         // Verifica si el nombre es uno de los que te interesan
-                        if (in_array($dato['Nombre'], ['Sistema de Certificación', 'Nombre contacto', 'Tamaño de partida (Seguimiento)'])) {
+                        if (in_array($dato['Nombre'], ['Sistema de Certificación', 'Nombre contacto', 'Tamaño de partida (Seguimiento)', 'Dirección del Fabricante'])) {
                             $valoresBuscados[$dato['Nombre']] = $dato['Valor'];
                         }
                     }
@@ -73,9 +73,13 @@ class ApiScpController extends Controller
             }
         }
 
+        $pais_fabricacion = Direccion::where('IdDireccion', $valoresBuscados['Dirección del Fabricante'])->first()->Pais;
+
+
+        $codigo = $pais_fabricacion == "Chile" ? '1':'3'; //Ver cuando sea sistema 2 en SCP
         $sistema = explode(" ", $valoresBuscados['Sistema de Certificación']);
 
-        $salida->push($sistema[4]);
+        $salida->push('0'.$sistema[1].$codigo);
         $salida->push(Contacto::where('IdContacto', $valoresBuscados['Nombre contacto'])->value('NombreCompleto'));
         $salida->push($valoresBuscados['Tamaño de partida (Seguimiento)']);
         $salida->push($ingreso->llamada->FechaVisita);
