@@ -54,15 +54,9 @@ Route::middleware('auth')->group(function () {
             'certificados' => Certificate::where('active', 1)->get()
         ]);
     })->name('sistema-dos'); 
-
+    
+    Route::resource('certificates', CertificateController::class);
 
 });
 
 require __DIR__.'/auth.php';
-
-  
-
-
-
-
-//Route::get('/2s', [CertificateController::class, 'index'])->name('certificates');
