@@ -58,6 +58,7 @@ class ApiScpController extends Controller
 
         $valoresBuscados = [];
 
+
         foreach ($grupos as $solicitud) {
             $datosGrupo = json_decode($solicitud->DatosGrupo, true); // Lo convertimos a array
         
@@ -65,7 +66,7 @@ class ApiScpController extends Controller
                 foreach ($datosGrupo as $dato) {
                     if (isset($dato['Nombre']) && isset($dato['Valor'])) {
                         // Verifica si el nombre es uno de los que te interesan
-                        if (in_array($dato['Nombre'], ['Sistema de Certificación', 'Nombre contacto', 'Tamaño de partida (Seguimiento)', 'Dirección del Fabricante'])) {
+                        if (in_array($dato['Nombre'], ['Sistema de Certificación', 'Nombre contacto', 'Tamaño de partida (Seguimiento)', 'Tamaño de partida', 'Dirección del Fabricante'])) {
                             $valoresBuscados[$dato['Nombre']] = $dato['Valor'];
                         }
                     }
@@ -81,7 +82,11 @@ class ApiScpController extends Controller
 
         $salida->push('0'.$sistema[1].$codigo);
         $salida->push(Contacto::where('IdContacto', $valoresBuscados['Nombre contacto'])->value('NombreCompleto'));
-        $salida->push($valoresBuscados['Tamaño de partida (Seguimiento)']);
+        if(isset($valoresBuscados['Tamaño de partida (Seguimiento)'])){
+            $salida->push($valoresBuscados['Tamaño de partida (Seguimiento)']);
+        }else{
+            $salida->push($valoresBuscados['Tamaño de partida']);
+        }
         $salida->push($ingreso->llamada->FechaVisita);
 
         return $salida;
