@@ -41,8 +41,10 @@ class ApiScpController extends Controller
         $modelo = '';
 
         foreach ($ingreso->marcaModelo as $item) {
-            $marcas .= $item->Marca . ' / ';
-            $modelo .= $item->Modelo . ' / ';
+            if($item->Estado == 1){
+                $marcas .= $item->Marca . ' / ';
+                $modelo .= $item->Modelo . ' / ';
+            }
         }
 
         $marcas = rtrim($marcas, '/ ');

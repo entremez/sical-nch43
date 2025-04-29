@@ -30,7 +30,7 @@
 
 
 
-    <form action="{{ route('preview') }}" method="post" class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow">
+    <form id="form" action="{{ route('preview') }}" method="post" class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow" onsubmit="checkForm(event)">
       @csrf
 
       @if(!empty($error))
@@ -106,7 +106,7 @@
   
       <div class="mb-4">
         <label for="lote" class="block font-medium mb-1">Lote</label>
-        <input required type="text" name="lote" value="{{ $lote ?? '' }}" class="w-full border rounded p-2">
+        <input required id="lote" type="text" name="lote" value="{{ $lote ?? '' }}" class="w-full border rounded p-2">
       </div>
   
       <div class="mb-4">
@@ -187,7 +187,7 @@
       </div>
   
       <div class="text-center">
-        <input type="submit" value="Generar coordenadas" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        <input type="submit" value="Generar coordenadas" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" >
       </div>
     </form>
   </div>
@@ -204,5 +204,18 @@
             document.getElementById('row').value = '';
             document.getElementById('column').value = '';
         }
+    }
+
+    function checkForm(e) {
+      //Dado que en SCP pueden venir texto y números, se valida que sea un número para enviar al generador de muestras
+      e.preventDefault();
+      const inputQty = document.getElementById('lote');
+      if (isFinite(Number(inputQty.value))) {
+        document.getElementById('form').submit();
+      } else {
+        inputQty.focus();
+        alert("El campo 'Lote' debe ser un número. De existir más texto, dejar en comentarios.");
+      } 
+      
     }
 </script>

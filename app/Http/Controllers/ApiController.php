@@ -84,7 +84,7 @@ class ApiController extends Controller
 
         $row = $request['row'];
         $column = $request['column'];
-        $lote = $request['lote'];
+        $lote = preg_replace('/[^0-9]/', '', $request['lote']);
         $samples = $request['muestras'];
 
         Muestreo::updateOrCreate(['id_proceso' => $request['id_proceso']], [
