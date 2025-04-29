@@ -7,6 +7,7 @@ use App\Models\Muestreo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 
@@ -47,8 +48,8 @@ class ApiController extends Controller
         } else {
 
             $from_scp = ApiScpController::show($ose);
-            
-            if($from_scp != null){
+
+            if ($from_scp != null) {
 
                 return view('preview', [
                     'id_proceso' => $from_scp[0],
@@ -64,8 +65,8 @@ class ApiController extends Controller
                     'sistema' => $from_scp[8],
                     'contacto' => $from_scp[9]
                 ]);
-            }else{
-                return view('preview')->with('error','Proceso no encontrado en SCP.');
+            } else {
+                return view('preview')->with('error', 'Proceso no encontrado en SCP.');
             }
         }
     }
@@ -76,6 +77,8 @@ class ApiController extends Controller
         $xyz[1] = $request->ye;
         $xyz[2] = $request->zeta;
         $xyz[3] = isset($request->comentarios) ? $request->comentarios : '';
+
+        $xyz[4] = $this->getInitials(Auth::user()->name);
 
         $row = $request['row'];
         $column = $request['column'];
@@ -102,7 +105,6 @@ class ApiController extends Controller
         ]);
 
         return redirect()->route('home', ['muestreos' => Muestreo::all()]);
-
     }
 
     public function trace($id_muestreo)
@@ -117,6 +119,12 @@ class ApiController extends Controller
     {
         $muestreo = Muestreo::find($request->id);
         $muestreo->trazabilidad = json_encode($request->trazabilidad);
+
+        $test = json_decode($muestreo->comentarios);
+        $test[4] = $test[4]."/".$this->getInitials(Auth::user()->name)."/CD";
+
+        $muestreo->comentarios = json_encode($test);
+
         $muestreo->save();
         return redirect()->route('home', ['muestreos' => Muestreo::all()]);
     }
@@ -157,12 +165,17 @@ class ApiController extends Controller
         $canvas = $domPdf->get_canvas();
         $w = $canvas->get_width();
 
-        $name = "Muestreo ".$muestreo['id_proceso'].".pdf";
+
+        $initials = json_decode($muestreo['comentarios'])[4] ?? "CD";
+
+        $name = "Muestreo " . $muestreo['id_proceso'] . ".pdf";
         $canvas->page_text($w - 100, 54, "Página {PAGE_NUM} de {PAGE_COUNT}", null, 10, [0, 0, 0]);
+        $canvas->page_text(520, 820, $initials, null, 10, [0, 0, 0]);
         return $pdf->setPaper('letter', 'portrait')->download($name);
     }
 
-    public function sistema2($certificado){
+    public function sistema2($certificado)
+    {
         $certificado = Certificate::where('certificado', $certificado)->first();
         $sistema = explode("-", $certificado->certificado)[1];
         return view('preview', [
@@ -176,4 +189,17 @@ class ApiController extends Controller
             'sistema' => $sistema,
         ]);
     }
+
+    private function getInitials($name)
+    {
+        $name = trim($name);
+        $words = explode(' ', $name);
+        $initials = '';
+
+        foreach ($words as $word) {
+            $initials .= strtolower(mb_substr($word, 0, 1));
+        }
+
+        return $initials;
+    }   
 }
