@@ -13,6 +13,7 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
+
     <!-- Styles -->
     <style>
         /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
@@ -399,6 +400,7 @@
             }
         }
     </style>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {

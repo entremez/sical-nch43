@@ -1,3 +1,45 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Contenedor general del control superior */
+.dt-layout-row {
+    @apply flex flex-wrap justify-between items-center gap-4 mb-4;
+  }
+
+/* Select de "entries per page" */
+  .dt-length select {
+    @apply w-24 border border-gray-300 rounded px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring focus:ring-blue-300;
+  }
+    
+  /* Input de búsqueda */
+  .dt-input input[type="search"] {
+    @apply border border-gray-300 rounded px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring focus:ring-blue-300;
+  }
+  
+  /* Texto: "Mostrando 1 a 10 de 26..." */
+  .dt-info {
+    @apply text-sm text-gray-600;
+  }
+  
+  /* Paginación */
+  .dt-paging nav {
+    @apply flex items-center gap-1 mt-2;
+  }
+  
+  .dt-paging .paginate_button {
+    @apply px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition;
+  }
+  
+  .dt-paging .paginate_button.current {
+    @apply bg-blue-500 text-white border-blue-500 font-semibold;
+  }
+  
+  .dt-layout-cell.dt-layout-full {
+    @apply w-full;
+  }
+
+  .dt-layout-cell.dt-layout-full {
+    width: 100%;
+  }

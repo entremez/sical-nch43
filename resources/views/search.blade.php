@@ -3,6 +3,7 @@
 @section('title', 'Sistema de registro de planes de muestreo según NCh43')
 
 @section('content')
+
 <div class="flex justify-center mt-10">
 
 
@@ -80,8 +81,8 @@
         </table>
       </div>
       <h2 class="text-2xl font-semibold my-4">3. Registro de muestreos</h2>
-      <div class="overflow-x-auto">
-        <table class="table-auto w-full text-left border-collapse">
+      <div class="overflow-x-auto w-full" >
+        <table id="tabla-muestreos" class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-gray-100">
               <th class="px-4 py-2">Id proceso</th>
@@ -127,5 +128,9 @@
       alert("Se debe ingresar los datos del proceso.");
     }
   }
+
+
 </script>
+
+
 @endsection
