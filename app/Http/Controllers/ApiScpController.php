@@ -19,6 +19,10 @@ class ApiScpController extends Controller
         ->with('protocolo')
         ->first();
 
+        if($ingreso->llamada == null){
+            return "llamada";
+        }
+
         if ($ingreso == null) {
             return null;
         }

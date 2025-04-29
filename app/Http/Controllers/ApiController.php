@@ -8,7 +8,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 
 
 class ApiController extends Controller
@@ -49,6 +48,9 @@ class ApiController extends Controller
 
             $from_scp = ApiScpController::show($ose);
 
+            if($from_scp == "llamada")
+                return redirect()->back()->with('error', 'OSE sin "Llamada" en SCP.');
+
             if ($from_scp != null) {
 
                 return view('preview', [
@@ -66,7 +68,7 @@ class ApiController extends Controller
                     'contacto' => $from_scp[9]
                 ]);
             } else {
-                return view('preview')->with('error', 'Proceso no encontrado en SCP.');
+                return redirect()->back()->with('error', 'Proceso no encontrado en SCP.');
             }
         }
     }
