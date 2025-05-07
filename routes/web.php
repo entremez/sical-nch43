@@ -18,7 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/', function () {
-        $muestreos = Muestreo::orderBy('fecha', 'desc')->get();
+        $muestreos = Muestreo::orderBy('created_at', 'desc')->get();
         $muestreos_iniciados = $muestreos->filter(function ($muestreo) {
             return $muestreo->muestreo != null && $muestreo->trazabilidad == null;
         });
