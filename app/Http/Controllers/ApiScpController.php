@@ -13,88 +13,92 @@ class ApiScpController extends Controller
     {
         $ingreso = IS_OSESCAB::where('NbrOSE', 'like', '%' . $ose . '%')
         ->with('cliente')
-        ->with('llamada')
+        ->with('llamada.direccion.region')
         ->with('solicitud')
         ->with('marcaModelo')
         ->with('protocolo')
         ->first();
 
-        if($ingreso->llamada == null){
-            return "llamada";
-        }
-
         if ($ingreso == null) {
             return null;
         }
+
+        if($ingreso->llamada == null){
+            return "llamada";
+        }
     
-        $id_direccion = $ingreso->llamada->IdDireccion;
-
-        $direccion = Direccion::where('IdDireccion', $id_direccion)->with(['region'])->first();
-
-        $salida = collect();
-
-        $salida->push($ingreso->NbrOSE);
-        $salida->push($ingreso->protocolo->Codigo);
-        $salida->push($ingreso->protocolo->Producto);
+        $direccion = $ingreso->llamada->direccion;
 
         $marcas = '';
-        $modelo = '';
+        $modelos = '';
 
-        foreach ($ingreso->marcaModelo as $item) {
-            if($item->Estado == 1){
-                $marcas .= $item->Marca . ' / ';
-                $modelo .= $item->Modelo . ' / ';
-            }
-        }
+        $marcas = $ingreso->marcaModelo
+            ->where('Estado', 1)
+            ->map(fn($item) => $item->Marca)
+            ->implode(' / ');
 
-        $marcas = rtrim($marcas, '/ ');
-        $modelo = rtrim($modelo, '/ ');
+        $modelos = $ingreso->marcaModelo
+            ->where('Estado', 1)
+            ->map(fn($item) => $item->Modelo)
+            ->implode(' / ');
 
-        $salida->push($marcas);
-        $salida->push($modelo); 
-
-        $salida->push($ingreso->cliente->RazonSocial);
-        $salida->push(trim($direccion->Calle . $direccion->Nro . ', ' . $direccion->region->NOMBRE . ', ' . $direccion->Pais));
-        $salida->push($ingreso->llamada->Cantidad);
-
-
-        $grupos = $ingreso->solicitud->filter(function ($item) {
-            return $item->IdGrupo == 1 || $item->IdGrupo == 3 || $item->IdGrupo == 1007 || $item->IdGrupo == 2;
-        });
+        // Define los grupos válidos y los campos que te interesan
+        $gruposValidos = [1, 2, 3, 1007];
+        $camposInteres = [
+            'Sistema de Certificación',
+            'Nombre contacto',
+            'Tamaño de partida (Seguimiento)',
+            'Tamaño de partida',
+            'Dirección del Fabricante'
+        ];
 
         $valoresBuscados = [];
 
+        // Filtra solo las solicitudes con grupos válidos
+        $grupos = $ingreso->solicitud->whereIn('IdGrupo', $gruposValidos);
 
         foreach ($grupos as $solicitud) {
             $datosGrupo = json_decode($solicitud->DatosGrupo, true); // Lo convertimos a array
-        
+
             if (is_array($datosGrupo)) {
                 foreach ($datosGrupo as $dato) {
-                    if (isset($dato['Nombre']) && isset($dato['Valor'])) {
-                        // Verifica si el nombre es uno de los que te interesan
-                        if (in_array($dato['Nombre'], ['Sistema de Certificación', 'Nombre contacto', 'Tamaño de partida (Seguimiento)', 'Tamaño de partida', 'Dirección del Fabricante'])) {
-                            $valoresBuscados[$dato['Nombre']] = $dato['Valor'];
-                        }
+                    if (
+                        isset($dato['Nombre'], $dato['Valor']) &&
+                        in_array($dato['Nombre'], $camposInteres)
+                    ) {
+                        $valoresBuscados[$dato['Nombre']] = $dato['Valor'];
                     }
                 }
             }
         }
 
-        $pais_fabricacion = Direccion::where('IdDireccion', $valoresBuscados['Dirección del Fabricante'])->first()->Pais;
 
+        $pais_fabricacion = Direccion::where('IdDireccion', $valoresBuscados['Dirección del Fabricante'])->first()->Pais;
 
         $codigo = $pais_fabricacion == "Chile" ? '1':'3'; //Ver cuando sea sistema 2 en SCP
         $sistema = explode(" ", $valoresBuscados['Sistema de Certificación']);
 
-        $salida->push('0'.$sistema[1].$codigo);
-        $salida->push(Contacto::where('IdContacto', $valoresBuscados['Nombre contacto'])->value('NombreCompleto'));
-        if(isset($valoresBuscados['Tamaño de partida (Seguimiento)'])){
-            $salida->push($valoresBuscados['Tamaño de partida (Seguimiento)']);
-        }else{
-            $salida->push($valoresBuscados['Tamaño de partida']);
-        }
-        $salida->push($ingreso->llamada->FechaVisita);
+        $nombre_contacto = Contacto::where('IdContacto', $valoresBuscados['Nombre contacto'])->value('NombreCompleto');
+        $tamano_partida = $valoresBuscados['Tamaño de partida (Seguimiento)'] ?? $valoresBuscados['Tamaño de partida'];
 
-        return $salida;
+
+
+
+        $salidaArray = [
+            $ingreso->NbrOSE,
+            $ingreso->protocolo->Codigo,
+            $ingreso->protocolo->Producto,
+            $marcas,
+            $modelos,
+            $ingreso->cliente->RazonSocial,
+            trim($direccion->Calle .' '. $direccion->Nro . ', ' . $direccion->region->NOMBRE . ', ' . $direccion->Pais),
+            $ingreso->llamada->Cantidad,
+            '0'.$sistema[1].$codigo,
+            $nombre_contacto,
+            $tamano_partida,
+            $ingreso->llamada->FechaVisita
+        ];
+
+        return collect($salidaArray);
     }
 }

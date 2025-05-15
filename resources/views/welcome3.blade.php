@@ -185,7 +185,7 @@
           </tr>
           <tr>
             <td>Nombre y firma responsable del muestreo</td>
-            <td colspan="3"><img class="imgSign" src="{{ public_path('firma.png') }}" alt="firma" /></td>
+            <td colspan="3"><img class="imgSign" src="{{ public_path($firma) }}" alt="firma" /></td>
           </tr>
         </table>
         <br>

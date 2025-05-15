@@ -123,7 +123,9 @@ class ApiController extends Controller
         $muestreo->trazabilidad = json_encode($request->trazabilidad);
 
         $test = json_decode($muestreo->comentarios);
-        $test[4] = $test[4]."/".$this->getInitials(Auth::user()->name)."/CD";
+        $firma = json_decode(Auth::user()->sign);
+        $test[4] = $test[4]."/".$this->getInitials(Auth::user()->name)."/".$firma[0];
+        $test[5] = $firma[1];
 
         $muestreo->comentarios = json_encode($test);
 
@@ -142,6 +144,7 @@ class ApiController extends Controller
         $last_number = $array_data[count($array_data) - 1];
         $last_row = explode(" | ", $last_number->fila);
         $last_column = explode(" | ", $last_number->columna);
+        $sign = json_decode($muestreo['comentarios'])[5] ?? "firma.png";
 
         $pdf = Pdf::loadView('welcome3', [
             'data' => $data,
@@ -161,6 +164,7 @@ class ApiController extends Controller
             'contacto' => $muestreo['contacto'],
             'direccion' => $muestreo['direccion'],
             'sistema' => $muestreo['sistema'],
+            'firma' => $sign
         ]);
         $pdf->output();
         $domPdf = $pdf->getDomPDF();
