@@ -433,11 +433,13 @@
                                     Inicio
                                 </x-nav-link>
                             </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <x-nav-link :href="route('certificates.index')" :active="request()->routeIs('certificates.index')">
-                                Sistema 2
-                                </x-nav-link>
-                            </div>
+                            @if(Auth::user()->role_id != 3)
+                                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                    <x-nav-link :href="route('certificates.index')" :active="request()->routeIs('certificates.index')">
+                                    Sistema 2
+                                    </x-nav-link>
+                                </div>
+                            @endif
                         </div>
             
                         @if(Auth::user() != null)
