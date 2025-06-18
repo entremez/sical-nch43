@@ -12,7 +12,13 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('role_id')->nullable()->constrained()->onDelete('set null');
+            // Solo si no existe ya esta columna:
+            if (!Schema::hasColumn('users', 'role_id')) {
+                $table->foreignId('role_id')
+                    ->nullable()
+                    ->constrained('roles')
+                    ->nullOnDelete(); // equivale a onDelete('set null')
+            }
         });
     }
 
@@ -22,7 +28,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropForeign(['role_id']);
+            $table->dropColumn('role_id');
         });
     }
 };

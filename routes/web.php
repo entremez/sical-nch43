@@ -1,16 +1,41 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\ExportToExcelController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\MovementController;
+use App\Http\Controllers\ProductAssignmentController;
+use App\Http\Controllers\ProductModelController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\V2Controller;
 use App\Models\Certificate;
 use App\Models\Muestreo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
+
+
+
+Route::get('/brands/search', [BrandController::class, 'search'])->name('brands.search');
+Route::get('/denomination/search', [DesignationController::class, 'search'])->name('denomination.search');
+Route::get('/clientes/search', [CustomerController::class, 'search'])->name('customers.search');
+Route::get('/modelos/search', [ProductModelController::class, 'search']);
+
+
+Route::get('/products/assign', [ProductAssignmentController::class, 'assignToServiceOrder'])->name('products.assign');
+Route::post('/products/assign', [ProductAssignmentController::class, 'storeAssignment'])->name('products.assign.store');
+Route::get('/products/unassigned', [ProductAssignmentController::class, 'unassignedProduct'])->name('products.unassigned');
+
+
+Route::resource('models', ProductModelController::class);
+Route::resource('brands', BrandController::class);
+Route::resource('designations', DesignationController::class);
+Route::resource('movements', MovementController::class);
+Route::resource('customers', CustomerController::class);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

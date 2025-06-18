@@ -43,3 +43,25 @@
   .dt-layout-cell.dt-layout-full {
     width: 100%;
   }
+
+  /* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none; /* Mostrar con .flex si está activo */
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+/* Caja del modal */
+.modal-content {
+  background-color: #fff;
+  padding: 1.5rem; /* similar a p-6 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-lg */
+  width: 100%;
+  max-width: 32rem; /* max-w-lg */
+  margin: 0 1rem; /* mx-4 para móviles */
+}
