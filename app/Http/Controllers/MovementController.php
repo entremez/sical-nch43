@@ -27,22 +27,67 @@ class MovementController extends Controller
      */
     public function create(Request $request)
     {
-        $type = $request->query('type', 'ingreso_externo'); // por defecto ingreso_externo
+        $type = $request->query('type', 'ingreso_externo');
 
         $clientes = Customer::all();
         $oses = ServiceOrder::all();
-        $availableProducts = collect(); // fallback vacío para evitar errores
+        $availableProducts = collect();
 
         if ($type === 'despacho_interno') {
-            $availableProducts = Product::whereNull('expanded')
-                ->whereHas('serviceOrders', fn($q) => $q->where('marked', true))
-                ->whereDoesntHave('movement', fn($q) => $q->where('movement_type', 'despacho_interno'))
-                ->with(['model.brand', 'model.designation', 'movement', 'serviceOrders'])
+            $oses = ServiceOrder::where('marked', true)->orderBy('order_number')->get();
+            $clientes = Customer::where('type', 'internal')->get();
+            return view('movements.internal-dispatch', compact('type', 'clientes', 'oses'));
+        }
+
+        if ($type === 'ingreso_interno') {
+            $clientes = Customer::where('type', 'internal')->get();
+
+            // 🧠 Buscar OSEs con productos cuyo último movimiento es un despacho interno
+            $oses = ServiceOrder::where('marked', true)
+                ->whereHas('products', function ($query) {
+                    $query->whereNull('expanded')
+                        ->whereExists(function ($sub) {
+                            $sub->selectRaw(1)
+                                ->from('movement_product as mp')
+                                ->join('movements as m', 'm.id', '=', 'mp.movement_id')
+                                ->whereColumn('mp.product_id', 'products.id')
+                                ->orderByDesc('m.created_at')
+                                ->limit(1)
+                                ->where('m.movement_type', 'despacho_interno');
+                        });
+                })
+                ->orderBy('order_number')
                 ->get();
+
+            return view('movements.internal-entry', compact('type', 'clientes', 'oses'));
+        }
+
+        if ($type === 'despacho_externo') {
+            $clientes = Customer::where('type', 'external')->get();
+            $oses = ServiceOrder::where('marked', true)
+                ->whereHas('products', function ($query) {
+                    $query->whereNull('expanded')
+                        ->whereExists(function ($sub) {
+                            $sub->selectRaw(1)
+                                ->from('movement_product as mp')
+                                ->join('movements as m', 'm.id', '=', 'mp.movement_id')
+                                ->whereColumn('mp.product_id', 'products.id')
+                                ->orderByDesc('m.created_at')
+                                ->limit(1)
+                                ->whereIn('m.movement_type', ['ingreso_interno', 'ingreso_externo']);
+                        });
+                })
+                ->orderBy('order_number')
+                ->get();
+            $availableProducts = collect(); // modelos se agregan a mano
+
+            return view('movements.external-dispatch', compact('type', 'clientes', 'oses'));
         }
 
         return view('movements.create', compact('type', 'clientes', 'oses', 'availableProducts'));
     }
+
+
 
 
     /**
@@ -56,7 +101,6 @@ class MovementController extends Controller
             'guia_despacho' => 'required|string',
             'empresa' => 'required|string',
             'bodega' => 'nullable|string',
-            'service_order_id' => 'nullable|exists:service_orders,id',
             'modelos' => 'required|array',
             'modelos.*.modelo_id' => 'required|exists:product_models,id',
             'modelos.*.cantidad' => 'required|integer|min:1',
@@ -69,7 +113,6 @@ class MovementController extends Controller
             'dispatch_guide' => $validated['guia_despacho'] ?? null,
             'company' => $validated['empresa'],
             'warehouse' => $validated['bodega'] ?? null,
-            'service_order_id' => $validated['service_order_id'] ?? null,
         ]);
 
         // Crear productos asociados
@@ -85,6 +128,73 @@ class MovementController extends Controller
 
         return redirect()->route('movements.index')->with('success', 'Movement registered successfully.');
     }
+
+    public function storeInternalDispatch(Request $request)
+    {
+        $request->validate([
+            'cliente_id_internal' => 'required|exists:customers,id',
+            'products' => 'required|array|min:1',
+            'products.*' => 'exists:products,id'
+        ]);
+
+        $movement = Movement::create([
+            'customer_id' => $request->cliente_id_internal,
+            'movement_type' => 'despacho_interno',
+        ]);
+
+        $movement->internalProducts()->attach($request->products);
+
+        return redirect()->route('movements.index')
+            ->with('success', 'Despacho interno registrado correctamente.');
+    }
+
+    public function storeInternalEntry(Request $request)
+    {
+        $request->validate([
+            'cliente_id_internal' => 'required|exists:customers,id',
+            'products' => 'required|array|min:1',
+            'products.*' => 'exists:products,id'
+        ]);
+
+        $movement = Movement::create([
+            'customer_id' => $request->cliente_id_internal,
+            'movement_type' => 'ingreso_interno',
+        ]);
+
+        $movement->internalProducts()->attach($request->products);
+
+        return redirect()->route('movements.index')->with('success', 'Ingreso interno registrado correctamente.');
+    }
+
+    public function storeExternalDispatch(Request $request)
+    {
+        $request->validate([
+            'cliente_id' => 'required|exists:customers,id',
+            'guia_despacho' => 'required|string|max:255',
+            'empresa' => 'required|string|max:255',
+            'products' => 'required|array|min:1',
+            'products.*' => 'required|exists:products,id',
+        ]);
+
+        $movement = Movement::create([
+            'customer_id' => $request->cliente_id,
+            'movement_type' => 'despacho_externo',
+            'dispatch_guide' => $request->guia_despacho,
+            'company' => $request->empresa,
+        ]);
+
+        foreach ($request->products as $productId) {
+            $product = Product::findOrFail($productId);
+            $product->external_dispatch_id = $movement->id;
+            $product->save();
+
+            $movement->internalProducts()->attach($productId);
+        }
+
+        return redirect()->route('movements.index')->with('success', 'Despacho externo registrado correctamente.');
+    }
+
+
 
 
     /**

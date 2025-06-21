@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('customers');
             $table->string('movement_type'); // e.g. internal_input, external_output
             $table->string('dispatch_guide')->nullable();
-            $table->unsignedBigInteger('service_order_id')->nullable(); // nullable FK reference
             $table->string('company')->nullable();
             $table->string('warehouse')->nullable();
+            $table->foreignId('base_movement_id')->nullable()->constrained('movements');
+            $table->json('expanded')->nullable();
             $table->timestamps();
         });
     }

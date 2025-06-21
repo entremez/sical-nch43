@@ -16,6 +16,7 @@ class CustomerSeeder extends Seeder
         Customer::insert([
             ['name' => 'Electrolux', 'rut' => '89.123.456-k', 'type' => 'external'],
             ['name' => 'Marcelo Espinoza', 'rut' => '16.378.822-5', 'type' => 'internal'],
+            ['name' => 'andrés Zuárez', 'rut' => '17.378.822-5', 'type' => 'internal'],
             ['name' => 'Karcher', 'rut' => '89.123.457-k', 'type' => 'external'],
         ]);
     }

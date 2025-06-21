@@ -15,8 +15,10 @@ class ModelSeeder extends Seeder
     public function run(): void
     {
         ProductModel::insert([
-            ['name' => 'Plancha', 'brand_id' => 1, 'designation_id' => 1],
-            ['name' => 'Plancha', 'brand_id' => 2, 'designation_id' => 1],
+            ['name' => 'PLB-123', 'brand_id' => 1, 'designation_id' => 1],
+            ['name' => 'PLR-456', 'brand_id' => 2, 'designation_id' => 1],
+            ['name' => 'PCI01P075FR', 'brand_id' => 3, 'designation_id' => 2],
+            ['name' => 'HID-45', 'brand_id' => 3, 'designation_id' => 2]
         ]);
     }
 }

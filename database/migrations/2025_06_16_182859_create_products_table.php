@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->text('expanded')->nullable();
             $table->foreignId('base_product_id')->nullable()->constrained('products');
+            $table->foreignId('external_dispatch_id')->nullable()->constrained('movements');
             $table->timestamps();
         });
     }

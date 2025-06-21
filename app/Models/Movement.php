@@ -13,6 +13,12 @@ class Movement extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function internalProducts()
+    {
+        return $this->belongsToMany(Product::class, 'movement_product');
+    }
+
+
     public function activeProducts()
     {
         return $this->hasMany(Product::class)
@@ -30,6 +36,22 @@ class Movement extends Model
 
     public function getTotalQuantityAttribute()
     {
+        if ($this->movement_type == 'despacho_interno' || $this->movement_type == 'despacho_externo') {
+            return "-" . $this->internalProducts()->sum('quantity');
+        }
+        if ($this->movement_type == 'ingreso_interno') {
+            return "+" . $this->internalProducts()->sum('quantity');
+        }
         return $this->activeProducts->sum('quantity');
+    }
+
+    public function baseMovement()
+    {
+        return $this->belongsTo(Movement::class, 'base_movement_id');
+    }
+
+    public function expandedMovements()
+    {
+        return $this->hasMany(Movement::class, 'base_movement_id');
     }
 }

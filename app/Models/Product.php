@@ -19,6 +19,17 @@ class Product extends Model
         return $this->belongsTo(Movement::class);
     }
 
+    public function movements()
+    {
+        return $this->belongsToMany(Movement::class, 'movement_product');
+    }
+
+    public function internalMovements()
+    {
+        return $this->belongsToMany(Movement::class, 'movement_product');
+    }
+
+
     /**
      * Relación con el modelo de producto (product_models).
      */

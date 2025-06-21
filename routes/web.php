@@ -14,9 +14,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\V2Controller;
 use App\Models\Certificate;
 use App\Models\Muestreo;
+use App\Models\ServiceOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
+
 
 
 
@@ -35,7 +37,47 @@ Route::resource('models', ProductModelController::class);
 Route::resource('brands', BrandController::class);
 Route::resource('designations', DesignationController::class);
 Route::resource('movements', MovementController::class);
+Route::post('/movements/internal-dispatch', [MovementController::class, 'storeInternalDispatch'])->name('movements.storeInternalDispatch');
+Route::post('/movements/internal-entry', [MovementController::class, 'storeInternalEntry'])->name('movements.storeInternalEntry');
+Route::post('/movements/external-dispatch', [MovementController::class, 'storeExternalDispatch'])->name('movements.storeExternalDispatch');
+
+
 Route::resource('customers', CustomerController::class);
+
+Route::get('/api/ose/{id}/products', function ($id) {
+    $ose = ServiceOrder::with([
+        'products' => fn($q) =>
+            $q->whereNull('expanded')
+              ->whereDoesntHave('movement', fn($q) => $q->where('movement_type', 'despacho_interno')),
+        'products.model.brand',
+        'products.model.designation'
+    ])->findOrFail($id);
+
+    return response()->json($ose->products);
+});
+
+Route::get('/api/ose/{id}/products-entry', function ($id) {
+    $ose = App\Models\ServiceOrder::with([
+        'products' => function ($q) {
+            $q->whereNull('expanded')
+              ->whereHas('movements', fn($q) => $q->where('movement_type', 'despacho_interno'));;
+        },
+        'products.model.brand',
+        'products.model.designation'
+    ])->findOrFail($id);
+
+    return response()->json($ose->products);
+});
+
+Route::get('/api/movements/{id}/products', function ($id) {
+    $products = \App\Models\Movement::findOrFail($id)
+        ->products()
+        ->with(['model.brand', 'model.designation'])
+        ->get();
+
+    return response()->json($products);
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

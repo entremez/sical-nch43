@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Movement;
 use App\Models\Product;
 use App\Models\ServiceOrder;
 use Illuminate\Http\Request;
@@ -24,7 +25,6 @@ class ProductAssignmentController extends Controller
                 ->get();
         }
 
-        // 🔧 ESTA ES LA LÍNEA FALTANTE:
         $serviceOrders = ServiceOrder::orderBy('order_number')->get();
 
         return view('products.assign-to-service-order', compact('products', 'guide', 'serviceOrders'));
@@ -48,37 +48,54 @@ class ProductAssignmentController extends Controller
                 [$originalId, $index] = explode('-', $key);
                 $divisiones = explode(',', $request->input("divisiones_$originalId"));
 
-                // Crear todos los hijos una sola vez si no existen ya
+                // Crear hijos solo una vez por producto original
                 if (!isset($productosCreados[$originalId])) {
                     $original = Product::findOrFail($originalId);
                     $productosCreados[$originalId] = [];
 
+                    // ✅ Creamos un movimiento de tipo desagregación
+                    $ultimoMovimiento = $original->movement()->latest('created_at')->first();
+
+                    $desagregacion = Movement::create([
+                        'movement_type' => 'desagregacion',
+                        'customer_id' => $ultimoMovimiento?->customer_id,
+                        'dispatch_guide' => $ultimoMovimiento?->dispatch_guide,
+                        'company' => $ultimoMovimiento?->company,
+                        'base_movement_id' => $ultimoMovimiento?->id,
+                    ]);
+
+
                     foreach ($divisiones as $i => $cantidad) {
                         $cantidad = intval($cantidad);
                         $hijo = Product::create([
-                            'movement_id' => $original->movement_id,
+                            'movement_id' => $desagregacion->id,
                             'model_id' => $original->model_id,
                             'quantity' => $cantidad,
                             'expanded' => null,
                             'base_product_id' => $original->id,
                         ]);
+
                         $productosCreados[$originalId][] = $hijo;
+
+                        // ✅ Asociar a movimiento desagregación
+                        $desagregacion->internalProducts()->attach($hijo->id);
                     }
 
-                    // Guardar los IDs hijos en el padre
+                    // ✅ Guardar en el padre los IDs desagregados
                     $original->expanded = json_encode(
                         collect($productosCreados[$originalId])->pluck('id')
                     );
                     $original->save();
                 }
 
-                // De los hijos ya creados, tomamos solo el que el usuario seleccionó
+                // Solo asignar el hijo seleccionado
                 $productosParaAsignar[] = $productosCreados[$originalId][intval($index)];
             } else {
                 // Producto que no fue desagregado
                 $productosParaAsignar[] = Product::findOrFail($key);
             }
         }
+
 
         // Asignar solo los productos seleccionados
         foreach ($productosParaAsignar as $product) {

@@ -45,34 +45,29 @@
 
     <h1 class="text-3xl font-semibold my-6">Historial de movimientos</h1>
 
-  <div class="">
-    <table id="tabla-movimientos" class="table-auto w-full border border-gray-300 rounded">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="px-4 py-2">ID</th>
-          <th class="px-4 py-2">Fecha</th>
-          <th class="px-4 py-2">Cliente</th>
-          <th class="px-4 py-2">Tipo</th>
-          <th class="px-4 py-2">Guía</th>
-          <th class="px-4 py-2">Empresa</th>
-          <th class="px-4 py-2">Total muestras</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($movements as $movement)
-          <tr class="border-t">
-            <td class="px-4 py-2">{{ $movement->id }}</td>
-            <td class="px-4 py-2">{{ $movement->created_at->format('d/m/Y') }}</td>
-            <td class="px-4 py-2">{{ $movement->customer->name }}</td>
-            <td class="px-4 py-2">{{ ucfirst(str_replace('_', ' ', $movement->movement_type)) }}</td>
-            <td class="px-4 py-2">{{ $movement->dispatch_guide ?? '—' }}</td>
-            <td class="px-4 py-2">{{ $movement->company ?? '—' }}</td>
-            <td class="px-4 py-2 text-center">{{ $movement->total_quantity }}</td>
-          </tr>
-        @endforeach
-      </tbody>
-    </table>
-  </div>
+<table id="movimientos" class="table-auto w-full border">
+  <thead>
+    <tr>
+      <th></th> <!-- Columna para botón -->
+      <th>Fecha</th>
+      <th>Cliente</th>
+      <th>Tipo</th>
+      <th>Guía</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach($movements as $movement)
+      <tr data-id="{{ $movement->id }}">
+        <td><button class="expand-btn">+</button></td>
+        <td>{{ $movement->created_at->format('d/m/Y') }}</td>
+        <td>{{ $movement->customer->name }}</td>
+        <td>{{ ucwords(str_replace('_', ' ', $movement->movement_type)) }}</td>
+        <td>{{ $movement->dispatch_guide ?? '—' }}</td>
+      </tr>
+    @endforeach
+  </tbody>
+</table>
+
 
   </div>
 </div>

@@ -16,6 +16,8 @@ class DesignationSeeder extends Seeder
         Designation::insert([
             ['name' => 'Plancha'],
             ['name' => 'Hidrolavadora'],
+            ['name' => 'Refrigerador'],
+            ['name' => 'Lavadora'],
         ]);
     }
 }
