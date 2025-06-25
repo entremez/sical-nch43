@@ -41,6 +41,12 @@ Route::post('/movements/internal-dispatch', [MovementController::class, 'storeIn
 Route::post('/movements/internal-entry', [MovementController::class, 'storeInternalEntry'])->name('movements.storeInternalEntry');
 Route::post('/movements/external-dispatch', [MovementController::class, 'storeExternalDispatch'])->name('movements.storeExternalDispatch');
 
+Route::patch('/service-orders/{id}/mark', [ProductAssignmentController::class, 'mark'])->name('service_orders.mark');
+Route::get('/service-orders/unmarked-products', [ProductAssignmentController::class, 'unmarkedProducts'])->name('service_orders.unmarked_products');
+Route::patch('/service-orders/{id}/mark', [ProductAssignmentController::class, 'mark'])->name('service_orders.mark');
+
+
+
 
 Route::resource('customers', CustomerController::class);
 
@@ -72,11 +78,13 @@ Route::get('/api/ose/{id}/products-entry', function ($id) {
 Route::get('/api/movements/{id}/products', function ($id) {
     $products = \App\Models\Movement::findOrFail($id)
         ->products()
-        ->with(['model.brand', 'model.designation'])
+        ->with(['model.brand', 'model.designation', 'serviceOrders'])
         ->get();
 
     return response()->json($products);
 });
+
+Route::get('/movements/{id}/products', [MovementController::class, 'getProductsByMovementId']);
 
 
 Route::middleware('auth')->group(function () {

@@ -13,6 +13,8 @@ class BrandSeeder extends Seeder
             ['name' => 'Electrolux', 'description' => 'Electrodomésticos'],
             ['name' => 'Fensa', 'description' => 'Línea blanca'],
             ['name' => 'Karcher', 'description' => 'Limpieza industrial'],
+            ['name' => 'MIDEA', 'description' => 'Limpieza industrial'],
+            ['name' => 'Sin marca', 'description' => 'NA'],
         ]);
     }
 }

@@ -458,6 +458,9 @@
                                         <x-dropdown-link :href="route('models.index')">
                                             Modelos
                                         </x-dropdown-link>
+                                        <x-dropdown-link :href="route('service_orders.unmarked_products')">
+                                            Productos por identificar
+                                        </x-dropdown-link>
                                     </x-slot>
                                 </x-dropdown>
                             </div>

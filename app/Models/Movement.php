@@ -54,4 +54,14 @@ class Movement extends Model
     {
         return $this->hasMany(Movement::class, 'base_movement_id');
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(Movement::class, 'base_movement_id');
+    }
+
+    public function child()
+    {
+        return $this->belongsTo(Movement::class, 'expanded');
+    }
 }

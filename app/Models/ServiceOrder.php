@@ -10,4 +10,5 @@ class ServiceOrder extends Model
     {
         return $this->belongsToMany(Product::class, 'product_service_order', 'service_order_id', 'product_id');
     }
+    
 }

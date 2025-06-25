@@ -58,7 +58,7 @@
 
         {{-- Empresa --}}
         <div class="mb-4">
-        <label for="empresa" class="block text-gray-700 font-medium mb-2">Empresa</label>
+        <label for="empresa" class="block text-gray-700 font-medium mb-2">Empresa receptora</label>
         <select name="empresa" id="empresa"
                 class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required>

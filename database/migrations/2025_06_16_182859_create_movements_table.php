@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('dispatch_guide')->nullable();
             $table->string('company')->nullable();
             $table->string('warehouse')->nullable();
-            $table->foreignId('base_movement_id')->nullable()->constrained('movements');
-            $table->json('expanded')->nullable();
+            $table->foreignId('base_movement_id')->nullable()->constrained('movements')->nullOnDelete();
+            $table->foreignId('expanded')->nullable()->constrained('movements')->nullOnDelete();
             $table->timestamps();
         });
     }

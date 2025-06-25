@@ -24,18 +24,18 @@ $(document).ready(function () {
   });
 });
 
-  $(document).ready(function () {
-    $('#tabla-movimientos').DataTable({
-      paging: true,
-      pageLength: 10,
-      ordering: true,
-      order: [[1, 'desc']],
-      searching: true,
-      language: {
-        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-      }
-    });
+$(document).ready(function () {
+  $('#tabla-movimientos').DataTable({
+    paging: true,
+    pageLength: 10,
+    ordering: true,
+    order: [[1, 'desc']],
+    searching: true,
+    language: {
+      url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+    }
   });
+});
 
 
 $(document).ready(function () {
@@ -61,30 +61,44 @@ $(document).ready(function () {
         .then(res => res.json())
         .then(data => {
           const detalle = `
-            <table class="w-full text-sm bg-gray-50 mt-2 rounded">
-              <thead>
-                <tr>
-                  <th class="px-2 py-1">Marca</th>
-                  <th class="px-2 py-1">Modelo</th>
-                  <th class="px-2 py-1">Denominación</th>
-                  <th class="px-2 py-1">Cantidad</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${data.map(p => `
-                  <tr>
-                    <td class="px-2 py-1">${p.model.brand.name}</td>
-                    <td class="px-2 py-1">${p.model.name}</td>
-                    <td class="px-2 py-1">${p.model.designation.name}</td>
-                    <td class="px-2 py-1 text-center">${p.quantity}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
+    <table class="w-full text-sm bg-gray-50 mt-2 rounded">
+      <thead>
+        <tr>
+          <th class="px-2 py-1">Marca</th>
+          <th class="px-2 py-1">Modelo</th>
+          <th class="px-2 py-1">Denominación</th>
+          <th class="px-2 py-1">Cantidad</th>
+          <th class="px-2 py-1">OSE Asociada</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(p => {
+            const oseText = Array.isArray(p.service_orders) && p.service_orders.length > 0
+              ? p.service_orders.map(so => so.order_number).join(', ')
+              : '<span class="text-gray-400 italic">No asignada</span>';
+
+            const estadoAsignacion = p.expanded
+              ? '<span class="text-blue-600 italic">Ver desagregación</span>'
+              : oseText;
+
+            return `
+            <tr>
+              <td class="px-2 py-1">${p.model.brand.name}</td>
+              <td class="px-2 py-1">${p.model.name}</td>
+              <td class="px-2 py-1">${p.model.designation.name}</td>
+              <td class="px-2 py-1 text-center">${p.quantity}</td>
+              <td class="px-2 py-1 text-center">${estadoAsignacion}</td>
+            </tr>
           `;
+          }).join('')}
+      </tbody>
+    </table>
+        `;
           row.child(detalle).show();
           $(this).text('−');
         });
+
+
     }
   });
 });

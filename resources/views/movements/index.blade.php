@@ -16,12 +16,12 @@
         <h2 class="text-xl font-semibold mb-4">Ingresos</h2>
         <div class="flex flex-col gap-3">
           <a href="{{ route('movements.create', ['type' => 'ingreso_externo']) }}"
-            class="bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Ingreso externo
+            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded shadow text-center">
+            Ingreso de un cliente externo
           </a>
           <a href="{{ route('movements.create', ['type' => 'ingreso_interno']) }}"
              class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Ingreso interno
+            Ingreso de un cliente interno
           </a>
         </div>
       </div>
@@ -32,11 +32,11 @@
         <div class="flex flex-col gap-3">
           <a href="{{ route('movements.create', ['type' => 'despacho_externo']) }}"
              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Despacho externo
+            Despacho hacia un cliente externo
           </a>
           <a href="{{ route('movements.create', ['type' => 'despacho_interno']) }}"
              class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Despacho interno
+            Despacho hacia un cliente interno
           </a>
         </div>
       </div>

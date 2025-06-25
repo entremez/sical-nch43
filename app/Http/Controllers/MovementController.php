@@ -64,19 +64,18 @@ class MovementController extends Controller
 
         if ($type === 'despacho_externo') {
             $clientes = Customer::where('type', 'external')->get();
-            $oses = ServiceOrder::where('marked', true)
-                ->whereHas('products', function ($query) {
-                    $query->whereNull('expanded')
-                        ->whereExists(function ($sub) {
-                            $sub->selectRaw(1)
-                                ->from('movement_product as mp')
-                                ->join('movements as m', 'm.id', '=', 'mp.movement_id')
-                                ->whereColumn('mp.product_id', 'products.id')
-                                ->orderByDesc('m.created_at')
-                                ->limit(1)
-                                ->whereIn('m.movement_type', ['ingreso_interno', 'ingreso_externo']);
-                        });
-                })
+            $oses = ServiceOrder::whereHas('products', function ($query) {
+                $query->whereNull('expanded')
+                    ->whereExists(function ($sub) {
+                        $sub->selectRaw(1)
+                            ->from('movement_product as mp')
+                            ->join('movements as m', 'm.id', '=', 'mp.movement_id')
+                            ->whereColumn('mp.product_id', 'products.id')
+                            ->orderByDesc('m.created_at')
+                            ->limit(1)
+                            ->whereIn('m.movement_type', ['ingreso_interno', 'ingreso_externo']);
+                    });
+            })
                 ->orderBy('order_number')
                 ->get();
             $availableProducts = collect(); // modelos se agregan a mano
@@ -193,6 +192,19 @@ class MovementController extends Controller
 
         return redirect()->route('movements.index')->with('success', 'Despacho externo registrado correctamente.');
     }
+
+public function getProductsByMovementId($movementId)
+{
+    $products = \App\Models\Product::where('movement_id', $movementId)
+        ->with([
+            'model.brand',
+            'model.designation',
+            'serviceOrders:id,order_number' // 👈 esto es clave
+        ])
+        ->get();
+
+    return response()->json($products);
+}
 
 
 

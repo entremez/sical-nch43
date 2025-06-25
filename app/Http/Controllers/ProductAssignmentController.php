@@ -39,8 +39,7 @@ class ProductAssignmentController extends Controller
         ]);
 
         $serviceOrderId = $request->input('service_order_id');
-
-        $productosCreados = []; // para agrupar hijos por padre
+        $productosCreados = [];
         $productosParaAsignar = [];
 
         foreach ($request->products as $key) {
@@ -48,27 +47,30 @@ class ProductAssignmentController extends Controller
                 [$originalId, $index] = explode('-', $key);
                 $divisiones = explode(',', $request->input("divisiones_$originalId"));
 
-                // Crear hijos solo una vez por producto original
                 if (!isset($productosCreados[$originalId])) {
                     $original = Product::findOrFail($originalId);
                     $productosCreados[$originalId] = [];
 
-                    // ✅ Creamos un movimiento de tipo desagregación
-                    $ultimoMovimiento = $original->movement()->latest('created_at')->first();
+                    $movimientoBase = $original->movement;
 
-                    $desagregacion = Movement::create([
+                    // 🔁 Crear un único nuevo movimiento hijo
+                    $movimientoHijo = Movement::create([
                         'movement_type' => 'desagregacion',
-                        'customer_id' => $ultimoMovimiento?->customer_id,
-                        'dispatch_guide' => $ultimoMovimiento?->dispatch_guide,
-                        'company' => $ultimoMovimiento?->company,
-                        'base_movement_id' => $ultimoMovimiento?->id,
+                        'customer_id' => $movimientoBase?->customer_id,
+                        'dispatch_guide' => $movimientoBase?->dispatch_guide,
+                        'company' => $movimientoBase?->company,
+                        'base_movement_id' => $movimientoBase->id,
                     ]);
 
+                    // 🔁 Guardar referencia cruzada en movimiento padre
+                    $movimientoBase->expanded = $movimientoHijo->id;
+                    $movimientoBase->save();
 
-                    foreach ($divisiones as $i => $cantidad) {
+                    foreach ($divisiones as $cantidad) {
                         $cantidad = intval($cantidad);
+
                         $hijo = Product::create([
-                            'movement_id' => $desagregacion->id,
+                            'movement_id' => $movimientoHijo->id,
                             'model_id' => $original->model_id,
                             'quantity' => $cantidad,
                             'expanded' => null,
@@ -76,28 +78,20 @@ class ProductAssignmentController extends Controller
                         ]);
 
                         $productosCreados[$originalId][] = $hijo;
-
-                        // ✅ Asociar a movimiento desagregación
-                        $desagregacion->internalProducts()->attach($hijo->id);
                     }
 
-                    // ✅ Guardar en el padre los IDs desagregados
-                    $original->expanded = json_encode(
-                        collect($productosCreados[$originalId])->pluck('id')
-                    );
+                    // (opcional) dejar referencia a los productos desagregados en el producto original
+                    $original->expanded = json_encode(collect($productosCreados[$originalId])->pluck('id'));
                     $original->save();
                 }
 
-                // Solo asignar el hijo seleccionado
                 $productosParaAsignar[] = $productosCreados[$originalId][intval($index)];
             } else {
-                // Producto que no fue desagregado
                 $productosParaAsignar[] = Product::findOrFail($key);
             }
         }
 
-
-        // Asignar solo los productos seleccionados
+        // Asignación a la OSE
         foreach ($productosParaAsignar as $product) {
             if (!$product->serviceOrders->contains($serviceOrderId)) {
                 $product->serviceOrders()->attach($serviceOrderId);
@@ -107,6 +101,9 @@ class ProductAssignmentController extends Controller
         return redirect()->route('products.assign')->with('success', 'Productos asignados correctamente.');
     }
 
+
+
+
     public function unassignedProduct()
     {
         $products = Product::with(['model.brand', 'model.designation', 'movement'])
@@ -115,5 +112,28 @@ class ProductAssignmentController extends Controller
             ->get();
 
         return view('products.unassigned', compact('products'));
+    }
+
+    public function unmarkedProducts()
+    {
+        $productos = Product::whereHas('serviceOrders', function ($q) {
+            $q->where('marked', false);
+        })
+            ->with(['model.brand', 'model.designation', 'serviceOrders' => function ($q) {
+                $q->where('marked', false);
+            }])
+            ->get();
+
+        return view('products.unmarked_products', compact('productos'));
+    }
+
+
+    public function mark($id)
+    {
+        $order = ServiceOrder::findOrFail($id);
+        $order->marked = true;
+        $order->save();
+
+        return response()->json(['success' => true]);
     }
 }
