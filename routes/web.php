@@ -1,16 +1,18 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\EditController;
 use App\Http\Controllers\ExportToExcelController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\V2Controller;
 use App\Models\Certificate;
 use App\Models\Muestreo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -56,6 +58,10 @@ Route::middleware('auth')->group(function () {
     })->name('sistema-dos'); 
     
     Route::resource('certificates', CertificateController::class);
+    
+    Route::get('/edit/{id}', [EditController::class, 'edit'])->name('edit');    
+    Route::post('/update/{id}', [EditController::class, 'update'])->name('update');
+    Route::get('/delete/{id}', [EditController::class, 'delete'])->name('delete');
 
 });
 
