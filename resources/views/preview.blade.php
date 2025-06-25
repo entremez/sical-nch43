@@ -28,8 +28,6 @@
 
 <div class="flex justify-center mt-4">
 
-
-
     <form id="form" action="{{ route('preview') }}" method="post" class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow" onsubmit="checkForm(event)">
       @csrf
 
