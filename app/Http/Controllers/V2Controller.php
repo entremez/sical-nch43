@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Procedure;
-
+use App\Helpers\ProcedimientoHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -265,9 +264,8 @@ class V2Controller extends Controller
 
         $init_row = [1, 36, 71, 106, 141, 176, 211, 246];
         $limit_row = [35, 70, 105, 140, 175, 210, 245, 250];
-        $limit_column = 20;
 
-        $procedimiento = Procedure::where('max','>=',$lote)->where('min','<=',$lote)->first();
+        $procedimiento = ProcedimientoHelper::getProcedimientoByLote($lote);
 
         $columnas_a_usar = round($procedimiento->digits/2);
 
@@ -413,7 +411,6 @@ class V2Controller extends Controller
     }
 
     public static function operations($procedimiento, $number, $numero, $lote){
-
         $numero->put('valor_original', $number);
         if($number == 0){
             $numero->put('valor_final', $procedimiento->max);
@@ -488,19 +485,13 @@ class V2Controller extends Controller
         $last_number = $array_data[count($array_data) - 1];
         $last_row = explode(" | ", $last_number->fila);
         $last_column = explode(" | ",$last_number->columna);
-        $pdf = Pdf::loadView('welcome3', [
+        $pdf = Pdf::loadView('welcome2', [
             'data'=> V2Controller::nch43($lote, $samples, $row, $column),
             'lote' => $lote,
             'muestras' => $samples,
             'inicial' => $initial_coordinate,
             'final' => $last_row[count($last_row) -1].'/'.$last_column[count($last_column) -1]]);
-    $pdf->output();
-    $domPdf = $pdf->getDomPDF();
-    $canvas = $domPdf->get_canvas();
-    $w = $canvas->get_width();
-
-    $canvas->page_text($w-100, 54, "Página {PAGE_NUM} de {PAGE_COUNT}", null, 10, [0, 0, 0]);
-        return $pdf->setPaper('letter', 'portrait')->download('nch43.pdf');
+        return $pdf->setPaper('letter', 'landscape')->download('nch43.pdf');
         
     }
 }
