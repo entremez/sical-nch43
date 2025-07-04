@@ -11,6 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('areas', function (Blueprint $table) {
+            $table->id();
+            $table->string("nombre")->unique();
+            $table->string("descripcion")->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
             $table->text("cliente");
@@ -20,7 +27,7 @@ return new class extends Migration
             $table->text("direccion_fabrica");
             $table->text("certificado");
             $table->text("qr");
-            $table->tinyInteger("area");
+            $table->foreignId('area_id')->nullable()->constrained()->onDelete('set null');
             $table->tinyInteger("active");
             $table->timestamps();
         });

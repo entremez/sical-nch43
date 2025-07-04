@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Activity;
+use App\Models\Area;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -45,6 +46,16 @@ class ActivitiesTableSeeder extends Seeder
             'email' => 'm.espinoza@laboratoriosilab.com',
             'password' => bcrypt('12345678'),
             'role_id' => 2 // Assuming role_id 1 is for admin
+        ]);
+
+        Area::create([
+            'nombre' => 'Eléctrica',
+            'descripcion' => ''
+        ]);
+
+        Area::create([
+            'nombre' => 'Combustibles',
+            'descripcion' => ''
         ]);
     }
 }

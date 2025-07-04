@@ -8,7 +8,8 @@ use App\Models\Direccion;
 use App\Models\IS_OSESCAB;
 use App\Models\IS_TEXTOS;
 use GuzzleHttp\Client;
-use Illuminate\Http\Client\Request;
+use Illuminate\Http\Request;
+
 
 class ApiScpController extends Controller
 {
@@ -117,31 +118,78 @@ class ApiScpController extends Controller
 
     public function clientes(Request $request)
     {
-        $query = $request->get('q', '');
-        $clientes = collect($this->getClientesDesdeApi()) // tu fuente externa
-            ->filter(fn($c) => str_contains(strtolower($c['Texto']), strtolower($query)))
-            ->take(15)
-            ->map(fn($c) => [
-                'id' => $c['IdRelated'],
-                'nombre' => $c['Texto'],
-                'direccion' => $c['direccion']['Calle'] ?? '',
-            ]);
+        $query = strtolower($request->get('q', ''));
 
-        return response()->json($clientes);
+        $clientes = $this->getClientesDesdeApi();
+
+        // Filtrar antes de mapear
+        $filtrados = collect($clientes)->filter(function ($nombre, $rut) use ($query) {
+            return str_contains(strtolower($nombre), $query) || str_contains(strtolower($rut), $query);
+        });
+
+        $result = $filtrados->map(function ($nombre, $rut) {
+            return [
+                'id' => $rut,
+                'text' => $nombre . ' (' . $rut . ')',
+            ];
+        })->values();
+
+        return response()->json($result);
     }
 
     public function factories(Request $request)
     {
-        $query = $request->get('q', '');
-        $fabricas = collect($this->getFabricasDesdeApi()) // tu fuente externa
-            ->filter(fn($f) => str_contains(strtolower($f['Texto']), strtolower($query)))
+        $query = strtolower($request->get('q', ''));
+
+        $fabricas = collect($this->getFabricasDesdeApi())
+            ->filter(function ($f) use ($query) {
+                $nombre = strtolower($f['Texto'] ?? '');
+                $direccion = strtolower($f['direccion']['Calle'] ?? '');
+                return str_contains($nombre, $query) || str_contains($direccion, $query);
+            })
             ->take(15)
-            ->map(fn($f) => [
-                'id' => $f['IdRelated'],
-                'nombre' => $f['Texto'],
-                'direccion' => $f['direccion']['Calle'] ?? '',
-            ]);
+            ->map(function ($f) {
+                $nombre = $f['Texto'] ?? '';
+                $direccion = $f['direccion']['Calle'] ?? '';
+                $numero = $f['direccion']['Nro'] ?? '';
+                $pais = $f['direccion']['Pais'] ?? '';
+
+                $direccionCompleta = trim(implode(', ', array_filter([$direccion, $numero, $pais])));
+
+                return [
+                    'id' => $f['IdRelated'],
+                    'nombre' => $nombre,
+                    'direccion' => $direccionCompleta,
+                    'text' => $nombre . ' (' . $direccionCompleta . ')',
+                ];
+            })
+            ->values();
 
         return response()->json($fabricas);
+    }
+
+    public function protocolosPorArea(Request $request)
+    {
+        $area = $request->get('area');
+        $search = strtolower($request->get('q', ''));
+
+        $protocolos = \App\Models\Protocolo::where('TipoServicio', $area)
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereRaw('LOWER(Codigo) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(Producto) LIKE ?', ["%{$search}%"]);
+                });
+            })
+            ->select('IdProtocolo', 'Codigo', 'Producto')
+            ->limit(20)
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'text' => $p->Codigo . ' - ' . $p->Producto,
+                ];
+            });
+
+        return response()->json($protocolos);
     }
 }

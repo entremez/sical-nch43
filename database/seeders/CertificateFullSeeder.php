@@ -32,7 +32,7 @@ class CertificateFullSeeder extends Seeder
                 'direccion_fabrica' => $data['direccion_fabrica'],
                 'certificado' => $data['certificado'],
                 'qr' => $data['qr'],
-                'area' => $data['area'] ?? 1,
+                'area_id' => $data['area'] ?? 1,
                 'active' => $data['active'] ?? 1,
             ]);
 

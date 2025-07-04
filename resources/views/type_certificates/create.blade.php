@@ -10,8 +10,13 @@
         @csrf
 
         <div class="mb-4">
-            <label class="block">Número de Certificado</label>
+            <label class="block">Número de Certificado Tipo</label>
             <input type="text" name="certificado" class="w-full border rounded px-3 py-2" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block">Fecha del certificado</label>
+            <input type="date" name="certificado" class="w-full border rounded px-3 py-2" required>
         </div>
 
         <div class="mb-4">
@@ -35,8 +40,20 @@
         </div>
 
         <div class="mb-4">
-            <label class="block">Área</label>
-            <input type="number" name="area" class="w-full border rounded px-3 py-2" required>
+            <label for="area" class="block">Área</label>
+            <select name="area" id="area" class="w-full rounded px-3 py-2">
+                <option value="">Seleccionar área...</option>
+                @foreach($areas as $key => $label)
+                    <option value="{{ $label->id }}">{{ $label->nombre }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="protocolo_id" class="block">Protocolo asociado</label>
+            <select id="protocolo_id" name="protocolo_id" class="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700">
+                <option value="">Seleccione un protocolo...</option>
+            </select>
         </div>
 
         <button class="bg-green-600 text-white px-4 py-2 rounded">Guardar</button>
@@ -44,12 +61,7 @@
 </div>
 @endsection
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
-@endpush
-
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#cliente_id').select2({
@@ -62,12 +74,13 @@
                     processResults: data => ({
                         results: data.map(item => ({
                             id: item.id,
-                            text: item.nombre + ' — ' + item.direccion
+                            text: item.text  // ← usa directamente el texto que ya viene armado
                         }))
                     }),
                     cache: true
                 }
             });
+
 
             $('#fabrica_id').select2({
                 placeholder: 'Buscar fábrica',
@@ -79,12 +92,38 @@
                     processResults: data => ({
                         results: data.map(item => ({
                             id: item.id,
-                            text: item.nombre + ' — ' + item.direccion
+                            text: item.text  // ← usa el campo formateado desde backend
                         }))
                     }),
                     cache: true
                 }
             });
+
         });
+         $('#protocolo_id').select2({
+        placeholder: 'Seleccione un protocolo',
+        ajax: {
+            url: '{{ route("api.protocolos") }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    area: $('#area').val(), // Valor actual del área seleccionada
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
+        }
+    });
+
+    // Resetear protocolo al cambiar el área
+    $('#area').on('change', function () {
+        $('#protocolo_id').val(null).trigger('change');
+    });
     </script>
 @endpush

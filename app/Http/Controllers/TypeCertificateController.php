@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\TypeCertificate;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,8 @@ class TypeCertificateController extends Controller
 
     public function create()
     {
-        return view('type_certificates.create');
+        $areas = Area::all();
+        return view('type_certificates.create', compact('areas'));
     }
 
     public function store(Request $request)

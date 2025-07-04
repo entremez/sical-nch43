@@ -14,7 +14,8 @@ return new class extends Migration
             $table->unsignedBigInteger('cliente_id'); // Referencia externa (por API)
             $table->unsignedBigInteger('fabrica_id'); // Referencia externa (por API)
             $table->foreignId('activity_file_id')->nullable()->constrained('activity_files')->onDelete('set null');
-            $table->string('certificado')->unique();
+            $table->string('certificate')->unique();
+            $table->date('certificate_date')->unique();
             $table->string('test_report_number')->nullable();
             $table->date('test_report_date')->nullable();
             $table->tinyInteger('area');

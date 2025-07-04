@@ -54,6 +54,7 @@ Route::get('aplication-documents/{id}/activities', function ($id) {
 // routes/web.php o routes/api.php
 Route::get('/api/clientes', [ApiScpController::class, 'clientes'])->name('api.clientes');
 Route::get('/api/fabricas', [ApiScpController::class, 'factories'])->name('api.fabricas');
+Route::get('/api/protocolos', [App\Http\Controllers\ApiScpController::class, 'protocolosPorArea'])->name('api.protocolos');
 
 
 Route::delete('/certificates/{certificate}/models/{model}', [CertificateController::class, 'detachModel'])->name('certificates.detach-model');
