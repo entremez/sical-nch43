@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
+use App\Models\ProductModel;
 use Illuminate\Http\Request;
 
 class CertificateController extends Controller
@@ -12,15 +13,20 @@ class CertificateController extends Controller
      */
     public function index(Request $request)
     {
+        $certificates = Certificate::all();
+
+        return view('certificates.index', compact('certificates'));
+
+        // TODO
         $query = Certificate::query();
-    
+
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where('cliente', 'like', '%' . $search . '%')
-                  ->orWhere('producto', 'like', '%' . $search . '%')
-                  ->orWhere('certificado', 'like', '%' . $search . '%');
+                ->orWhere('producto', 'like', '%' . $search . '%')
+                ->orWhere('certificado', 'like', '%' . $search . '%');
         }
-    
+
         // Filtros para 'area' y 'active'
         if ($request->has('area')) {
             $query->where('area', $request->input('area'));
@@ -28,13 +34,13 @@ class CertificateController extends Controller
         if ($request->has('active')) {
             $query->where('active', $request->input('active'));
         }
-    
+
         // Paginación
         $certificados = $query->orderByDesc('id')->paginate(10);
-    
+
         return view('certificates.index', compact('certificados'));
     }
-    
+
 
     /**
      * Show the form for creating a new resource.
@@ -55,20 +61,26 @@ class CertificateController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Certificate $certificate)
     {
-        $certificate = Certificate::findOrFail($id);
+        $usedIds = $certificate->productModels->pluck('id');
+        $availableModels = ProductModel::whereNotIn('id', $usedIds)->with(['brand', 'designation'])->get();
 
-        return view('certificates.show', compact('certificate'));
+        return view('certificates.show', compact('certificate', 'availableModels'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function attachModel(Request $request, Certificate $certificate)
     {
-        //
+        $certificate->productModels()->attach($request->product_model_id);
+        return back()->with('success', 'Modelo agregado correctamente.');
     }
+
+    public function detachModel(Certificate $certificate, ProductModel $model)
+    {
+        $certificate->productModels()->detach($model->id);
+        return back()->with('success', 'Modelo eliminado del certificado.');
+    }
+
 
     /**
      * Update the specified resource in storage.
@@ -87,14 +99,14 @@ class CertificateController extends Controller
             'active' => 'required|boolean',
             // certificado y qr no se actualizan
         ]);
-    
+
         $certificate->update($validated);
-    
+
         return redirect()
             ->route('certificates.index')
             ->with('success', 'Certificado actualizado correctamente.');
     }
-    
+
 
     /**
      * Remove the specified resource from storage.

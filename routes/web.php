@@ -1,17 +1,63 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\ApiScpController;
+use App\Http\Controllers\AplicationDocumentActivityController;
+use App\Http\Controllers\AplicationDocumentController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EditController;
 use App\Http\Controllers\ExportToExcelController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\PlanActivityController;
+use App\Http\Controllers\PlanFileController;
+use App\Http\Controllers\ProcessController;
+use App\Http\Controllers\ProductModelController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TypeCertificateController;
 use App\Http\Controllers\V2Controller;
 use App\Models\Certificate;
 use App\Models\Muestreo;
+use App\Models\TypeCertificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
+
+Route::get('test', function () {
+    return ApiScpController::clients();
+})->name('test');
+
+
+Route::get('aplication-documents/{id}/edit-activities', [AplicationDocumentActivityController::class, 'edit'])->name('aplication-documents.edit-activities');
+Route::put('aplication-documents/{id}/update-activities', [AplicationDocumentActivityController::class, 'update'])->name('aplication-documents.update-activities');
+Route::post('plan-activities/{plan}/update', [PlanActivityController::class, 'update'])->name('plan-activities.update');
+Route::post('processes/{process}/activities/update', [PlanActivityController::class, 'massUpdate'])->name('plan-activities.mass-update');
+Route::delete('/plan-files/{file}', [PlanActivityController::class, 'destroy'])->name('plan-files.destroy');
+
+
+
+Route::resource('processes', ProcessController::class);
+Route::resource('documents', DocumentController::class);
+Route::resource('activities', ActivityController::class);
+Route::resource('aplication-documents', AplicationDocumentController::class);
+Route::resource('certificate', CertificateController::class);
+Route::resource('product-models', ProductModelController::class);
+Route::resource('type-certificates', TypeCertificateController::class);
+
+
+
+Route::get('aplication-documents/{id}/activities', function ($id) {
+    $document = App\Models\AplicationDocument::with('activities')->findOrFail($id);
+    return response()->json($document->activities->pluck('id'));
+});
+// routes/web.php o routes/api.php
+Route::get('/api/clientes', [ApiScpController::class, 'clientes'])->name('api.clientes');
+Route::get('/api/fabricas', [ApiScpController::class, 'factories'])->name('api.fabricas');
+
+
+Route::delete('/certificates/{certificate}/models/{model}', [CertificateController::class, 'detachModel'])->name('certificates.detach-model');
+Route::post('/certificates/{certificate}/models', [CertificateController::class, 'attachModel'])->name('certificates.attach-model');
 
 
 Route::middleware('auth')->group(function () {

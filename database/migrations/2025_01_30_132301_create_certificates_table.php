@@ -18,9 +18,6 @@ return new class extends Migration
             $table->text("direccion");
             $table->text("fabrica");
             $table->text("direccion_fabrica");
-            $table->text("producto");
-            $table->text("marca");
-            $table->text("modelo");
             $table->text("certificado");
             $table->text("qr");
             $table->tinyInteger("area");

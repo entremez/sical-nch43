@@ -1,66 +1,53 @@
 @extends('layouts.default')
-
-@section('title', 'Certificados sistema 2')
+@section('title', 'Listado de certificados')
 
 @section('content')
-
-@if(session('success'))
-  <div class="mb-4 red-text bg-blue-500 text-white px-4 py-3 rounded-lg">
-    {{ session('success') }}
-  </div>
-@endif
-
-<h1 class="text-2xl font-bold mb-6">Certificados sistema 2</h1>
-
-<!-- Formulario de Filtros y Búsqueda -->
-<div class="mb-4 flex space-x-4">
-  <form action="{{ route('certificates.index') }}" method="GET" class="flex items-center space-x-4">
-    <div>
-      <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por cliente, producto o certificado" 
-             class="border rounded p-2">
+<div class="max-w-5xl mx-auto mt-6">
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Certificados</h1>
+        <a href="{{ route('certificates.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Nuevo certificado</a>
     </div>
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-      Filtrar
-    </button>
-  </form>
+
+    @if(session('success'))
+        <div class="bg-green-200 text-green-800 p-2 rounded mb-4">{{ session('success') }}</div>
+    @endif
+
+    <table class="w-full border bg-white shadow rounded">
+        <thead>
+            <tr class="bg-gray-100 text-left">
+                <th class="p-2">N°</th>
+                <th class="p-2">Cliente</th>
+                <th class="p-2">Producto</th>
+                <th class="p-2">Modelos</th>
+                <th class="p-2">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($certificates as $certificate)
+                <tr class="border-t align-top">
+                    <td class="p-2">{{ $certificate->certificado }}</td>
+                    <td class="p-2">{{ $certificate->cliente }}</td>
+
+                    {{-- Producto (muestra la primera denominación si hay al menos un modelo asociado) --}}
+                    <td class="p-2">
+                        {{ optional($certificate->productModels->first()?->designation)->name ?? '-' }}
+                    </td>
+
+                    {{-- Modelos: uno por línea --}}
+                    <td class="p-2 whitespace-pre-line">{{ $certificate->model_list }}</td>
+
+
+                    <td class="p-2 space-x-2">
+                        <a href="{{ route('certificates.show', $certificate) }}" class="text-blue-600">Ver</a>
+                        <a href="{{ route('certificates.edit', $certificate) }}" class="text-yellow-600">Editar</a>
+                        <form action="{{ route('certificates.destroy', $certificate) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar?')">
+                            @csrf @method('DELETE')
+                            <button class="text-red-600">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
-
-<div class="overflow-x-auto">
-  <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-    <thead class="bg-gray-100 text-left text-gray-600">
-      <tr>
-        <th class="px-4 py-2">Certificado N°</th>
-        <th class="px-4 py-2">Cliente</th>
-        <th class="px-4 py-2">Producto</th>
-        <th class="px-4 py-2">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach($certificados as $certificado)
-        <tr class="border-t">
-          <td class="px-4 py-2">{{ $certificado->certificado }}</td>
-          <td class="px-4 py-2">{{ $certificado->cliente }}</td>
-          <td class="px-4 py-2">{{ $certificado->producto }}</td>
-          <td class="px-4 py-2 space-x-2">
-            <a href="{{ route('certificates.show', $certificado->id) }}"
-               class="inline-flex items-center bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition text-sm">
-              ✏️
-            </a>
-
-            <a href="{{ route('sistema2', $certificado->certificado) }}"
-                class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm">
-               Generar muestreo
-             </a>
-          </td>
-        </tr>
-      @endforeach
-    </tbody>
-  </table>
-</div>
-
-<!-- Paginación -->
-<div class="mt-4">
-  {{ $certificados->appends(request()->query())->links() }}
-</div>
-
 @endsection

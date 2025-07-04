@@ -16,7 +16,11 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
 
         $this->call([
-            ProcedureSeeder::class,
+            ActivitiesTableSeeder::class,
+            DocumentsTableSeeder::class,
+            AplicationDocumentsTableSeeder::class,
+            AplicationDocumentActivitySeeder::class,
+            CertificateFullSeeder::class 
         ]);
     }
 }

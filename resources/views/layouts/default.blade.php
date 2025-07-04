@@ -407,14 +407,15 @@
             font-family: 'Nunito', sans-serif;
         }
     </style>
+
+    {{-- Aquí se insertarán los estilos adicionales --}}
+    @stack('styles')
     
 </head>
 
 <body class="bg-gray-100">
 
     <header >
-
-        
             <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -433,6 +434,105 @@
                                     Inicio
                                 </x-nav-link>
                             </div>
+
+                            <div class="hidden sm:flex sm:ms-6 sm:items-center">
+                                <div x-data="{ open: false }" >
+                                    <button @click="open = !open"
+                                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                        OCP
+                                        <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 7l5 5 5-5"/>
+                                        </svg>
+                                    </button>
+
+                                    <div x-show="open"
+                                        @click.away="open = false"
+                                        x-transition
+                                        class="absolute z-50 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                        <div class="py-1">
+                                            <x-dropdown-link :href="route('documents.index')">Documentos</x-dropdown-link>
+                                            <x-dropdown-link :href="route('activities.index')">Actividades</x-dropdown-link>
+                                            <x-dropdown-link :href="route('aplication-documents.index')">Documentos de aplicación</x-dropdown-link>
+                                            <x-dropdown-link :href="route('processes.create')">Crear proceso</x-dropdown-link>
+                                            <x-dropdown-link :href="route('processes.index')">Listado proceso</x-dropdown-link>
+                                            <x-dropdown-link :href="route('aplication-documents.index')">Actividades por solicitud</x-dropdown-link>
+                                            <div class="hidden sm:flex sm:items-center">
+                                                <div x-data="{ open: false }">
+                                                    <button @click="open = !open"
+                                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                                        Certificados
+                                                        <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M5 7l5 5 5-5" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <div x-show="open"
+                                                        @click.away="open = false"
+                                                        x-transition
+                                                        class="absolute z-50 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                                        <div class="py-1">
+                                                            <x-dropdown-link :href="route('certificates.index')">Listado</x-dropdown-link>
+                                                            <x-dropdown-link :href="route('certificates.create')">Nuevo certificado</x-dropdown-link>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="hidden sm:flex sm:items-center">
+                                                <div x-data="{ open: false }">
+                                                    <button @click="open = !open"
+                                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                                        Productos
+                                                        <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M5 7l5 5 5-5" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <div x-show="open"
+                                                        @click.away="open = false"
+                                                        x-transition
+                                                        class="absolute z-50 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                                        <div class="py-1">
+                                                            <x-dropdown-link :href="route('product-models.index')">Listado</x-dropdown-link>
+                                                            <x-dropdown-link :href="route('product-models.create')">Nuevo producto</x-dropdown-link>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="hidden sm:flex sm:items-center">
+                                                <div x-data="{ open: false }">
+                                                    <button @click="open = !open"
+                                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                                        Certificados tipo
+                                                        <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M5 7l5 5 5-5" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <div x-show="open"
+                                                        @click.away="open = false"
+                                                        x-transition
+                                                        class="absolute z-50 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                                        <div class="py-1">
+                                                            <x-dropdown-link :href="route('type-certificates.index')">Listado</x-dropdown-link>
+                                                            <x-dropdown-link :href="route('type-certificates.create')">Crear</x-dropdown-link>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             @if(Auth::user()->role_id != 3)
                                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <x-nav-link :href="route('certificates.index')" :active="request()->routeIs('certificates.index')">
@@ -507,6 +607,7 @@
           {{ date('Y') }} | Sical Ingenieros S.A.
         </div>
       </footer>
-      
+    {{-- Aquí se insertarán los scripts adicionales --}}
+    @stack('scripts') 
 </body>
 </html>
