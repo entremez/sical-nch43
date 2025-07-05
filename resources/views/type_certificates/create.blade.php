@@ -10,13 +10,37 @@
         @csrf
 
         <div class="mb-4">
+            <label for="scope" class="block">Ámbito</label>
+            <select name="scope" id="scope" class="w-full rounded px-3 py-2" required>
+                <option value="">Seleccionar ámbito...</option>
+                @foreach($scopes as $label)
+                    <option value="{{ $label->id }}">{{ $label->nombre }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-4">
+            <label class="block">Solicitud de certificación</label>
+            <input type="text" name="solicitud" class="w-full border rounded px-3 py-2" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block">Fecha de solicitud de certificación</label>
+            <input type="date" name="fecha_solicitud" class="w-full border rounded px-3 py-2" required>
+        </div>
+
+        <div class="mb-4">
             <label class="block">Número de Certificado Tipo</label>
             <input type="text" name="certificado" class="w-full border rounded px-3 py-2" required>
         </div>
 
         <div class="mb-4">
             <label class="block">Fecha del certificado</label>
-            <input type="date" name="certificado" class="w-full border rounded px-3 py-2" required>
+            <input type="date" name="fecha_certificado" class="w-full border rounded px-3 py-2" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block">N° SEC certificado tipo</label>
+            <input type="number" name="sec" class="w-full border rounded px-3 py-2" required>
         </div>
 
         <div class="mb-4">
@@ -31,17 +55,17 @@
 
         <div class="mb-4">
             <label class="block">N° Informe de Ensayo</label>
-            <input type="text" name="test_report_number" class="w-full border rounded px-3 py-2">
+            <input type="text" name="test_report_number" class="w-full border rounded px-3 py-2" required>
         </div>
 
         <div class="mb-4">
             <label class="block">Fecha del Informe</label>
-            <input type="date" name="test_report_date" class="w-full border rounded px-3 py-2">
+            <input type="date" name="test_report_date" class="w-full border rounded px-3 py-2" required>
         </div>
 
         <div class="mb-4">
             <label for="area" class="block">Área</label>
-            <select name="area" id="area" class="w-full rounded px-3 py-2">
+            <select name="area" id="area" class="w-full rounded px-3 py-2" required>
                 <option value="">Seleccionar área...</option>
                 @foreach($areas as $key => $label)
                     <option value="{{ $label->id }}">{{ $label->nombre }}</option>
@@ -51,9 +75,12 @@
 
         <div class="mb-4">
             <label for="protocolo_id" class="block">Protocolo asociado</label>
-            <select id="protocolo_id" name="protocolo_id" class="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-700">
-                <option value="">Seleccione un protocolo...</option>
-            </select>
+            <select id="protocolo_id" name="protocolo_id" class="w-full rounded px-3 py-2" required></select>
+        </div>
+
+        <div class="mb-4">
+            <label class="block">Denominación comercial</label>
+            <input type="text" name="denominacion_comercial" class="w-full border rounded px-3 py-2" required>
         </div>
 
         <button class="bg-green-600 text-white px-4 py-2 rounded">Guardar</button>
@@ -100,30 +127,31 @@
             });
 
         });
-         $('#protocolo_id').select2({
-        placeholder: 'Seleccione un protocolo',
-        ajax: {
-            url: '{{ route("api.protocolos") }}',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    area: $('#area').val(), // Valor actual del área seleccionada
-                    q: params.term
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: data
-                };
-            },
-            cache: true
-        }
-    });
 
-    // Resetear protocolo al cambiar el área
-    $('#area').on('change', function () {
-        $('#protocolo_id').val(null).trigger('change');
-    });
+        $('#protocolo_id').select2({
+            placeholder: 'Seleccione un protocolo',
+            ajax: {
+                url: '{{ route("api.protocolos") }}',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        area: $('#area').val(), // Valor actual del área seleccionada
+                        q: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Resetear protocolo al cambiar el área
+        $('#area').on('change', function () {
+            $('#protocolo_id').val(null).trigger('change');
+        });
     </script>
 @endpush

@@ -174,6 +174,7 @@ class ApiScpController extends Controller
         $search = strtolower($request->get('q', ''));
 
         $protocolos = \App\Models\Protocolo::where('TipoServicio', $area)
+            ->where('Estado', 1)
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereRaw('LOWER(Codigo) LIKE ?', ["%{$search}%"])
@@ -185,10 +186,38 @@ class ApiScpController extends Controller
             ->get()
             ->map(function ($p) {
                 return [
-                    'id' => $p->id,
+                    'id' => $p->IdProtocolo,
                     'text' => $p->Codigo . ' - ' . $p->Producto,
                 ];
             });
+
+        return response()->json($protocolos);
+    }
+
+    public function protocolosPorAreaYCategoria(Request $request)
+    {
+        $area = $request->get('area_id');
+        $category = $request->get('category_id');
+
+        // Codigos con categoría asignada
+        $asignados = \App\Models\Protocol::where('category_id', $category)
+            ->pluck('name')
+            ->map(fn($c) => trim(strtoupper($c)))
+            ->toArray();
+
+        $protocolos = \App\Models\Protocolo::where('TipoServicio', $area)
+            ->where('Estado', 1)
+            ->get()
+            ->unique('Codigo')
+            ->map(function ($p) use ($asignados) {
+                $codigo = strtoupper($p->Codigo);
+                return [
+                    'id' => $p->IdProtocolo,
+                    'text' => $codigo . ' - ' . $p->Producto,
+                    'checked' => in_array($codigo, $asignados),
+                ];
+            })
+            ->values();
 
         return response()->json($protocolos);
     }

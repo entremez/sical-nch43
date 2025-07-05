@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Activity;
 use App\Models\Area;
+use App\Models\Category;
 use App\Models\Role;
+use App\Models\Scope;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -50,12 +52,62 @@ class ActivitiesTableSeeder extends Seeder
 
         Area::create([
             'nombre' => 'Eléctrica',
-            'descripcion' => ''
+            'descripcion' => '1'
         ]);
 
         Area::create([
-            'nombre' => 'Combustibles',
+            'nombre' => 'Combustible líquido',
+            'descripcion' => '2'
+        ]);
+
+        Area::create([
+            'nombre' => 'Combustible gas',
+            'descripcion' => '2'
+        ]);
+
+        Area::create([
+            'nombre' => 'Combustible leña',
+            'descripcion' => '2'
+        ]);
+
+        Scope::create([
+            'nombre' => 'Seguridad',
             'descripcion' => ''
+        ]);
+
+        Scope::create([
+            'nombre' => 'Eficiencia energética',
+            'descripcion' => ''
+        ]);
+
+        $areas = Area::pluck('id', 'nombre');
+
+        // Eléctrica
+        Category::insert([
+            ['area_id' => $areas['Eléctrica'], 'name' => 'Artefactos de uso doméstico para ambiente normal'],
+            ['area_id' => $areas['Eléctrica'], 'name' => 'Iluminación'],
+            ['area_id' => $areas['Eléctrica'], 'name' => 'Herramientas eléctricas manuales'],
+            ['area_id' => $areas['Eléctrica'], 'name' => 'Equipos electrónicos de audio/video, tecnología de la información y tecnología de la comunicación'],
+            ['area_id' => $areas['Eléctrica'], 'name' => 'Materiales para baja tensión'],
+        ]);
+
+        // Combustible líquido
+        Category::insert([
+            ['area_id' => $areas['Combustible líquido'], 'name' => 'Componentes de Productos de Combustibles Líquidos'],
+            ['area_id' => $areas['Combustible líquido'], 'name' => 'Artefactos Combustibles Líquidos'],
+        ]);
+
+        // Combustible gas
+        Category::insert([
+            ['area_id' => $areas['Combustible gas'], 'name' => 'Artefactos'],
+            ['area_id' => $areas['Combustible gas'], 'name' => 'Cilindros'],
+            ['area_id' => $areas['Combustible gas'], 'name' => 'Componentes de productos de Gas'],
+            ['area_id' => $areas['Combustible gas'], 'name' => 'Dispositivos, accesorios, materiales de instalación'],
+        ]);
+
+        // Combustible leña
+        Category::insert([
+            ['area_id' => $areas['Combustible leña'], 'name' => 'Artefactos de combustibles sólidos'],
         ]);
     }
 }

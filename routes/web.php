@@ -34,6 +34,9 @@ Route::put('aplication-documents/{id}/update-activities', [AplicationDocumentAct
 Route::post('plan-activities/{plan}/update', [PlanActivityController::class, 'update'])->name('plan-activities.update');
 Route::post('processes/{process}/activities/update', [PlanActivityController::class, 'massUpdate'])->name('plan-activities.mass-update');
 Route::delete('/plan-files/{file}', [PlanActivityController::class, 'destroy'])->name('plan-files.destroy');
+Route::get('/protocols/assign', [TypeCertificateController::class, 'showAssignForm'])->name('protocols.show');
+Route::post('/protocols/assign', [TypeCertificateController::class, 'assign'])->name('protocols.assign');
+
 
 
 
@@ -51,6 +54,14 @@ Route::get('aplication-documents/{id}/activities', function ($id) {
     $document = App\Models\AplicationDocument::with('activities')->findOrFail($id);
     return response()->json($document->activities->pluck('id'));
 });
+
+Route::get('/api/categorias-por-area/{area}', function ($areaId) {
+    return \App\Models\Category::where('area_id', $areaId)->get(['id', 'name']);
+});
+Route::get('/api/protocolos-por-area-categoria', [ApiScpController::class, 'protocolosPorAreaYCategoria']);
+
+
+
 // routes/web.php o routes/api.php
 Route::get('/api/clientes', [ApiScpController::class, 'clientes'])->name('api.clientes');
 Route::get('/api/fabricas', [ApiScpController::class, 'factories'])->name('api.fabricas');

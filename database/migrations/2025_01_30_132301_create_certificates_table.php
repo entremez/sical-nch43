@@ -18,6 +18,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('scopes', function (Blueprint $table) {
+            $table->id();
+            $table->string("nombre")->unique();
+            $table->string("descripcion")->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
             $table->text("cliente");
@@ -38,6 +45,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('areas');
+        Schema::dropIfExists('scopes');
         Schema::dropIfExists('certificates');
     }
 };
