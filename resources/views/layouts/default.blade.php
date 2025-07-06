@@ -534,7 +534,39 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="hidden sm:flex sm:items-center">
+                                                <div x-data="{ open: false }">
+                                                    <button @click="open = !open"
+                                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                                        Plantillas de características
+                                                        <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M5 7l5 5 5-5" />
+                                                        </svg>
+                                                    </button>
 
+                                                    <div x-show="open" @click.away="open = false"
+                                                        class="absolute z-10 left-0 w-56 mt-2 origin-top-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
+                                                        <a href=""
+                                                            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            Categorías
+                                                        </a>
+                                                        <a href=""
+                                                            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            Protocolos asignados
+                                                        </a>
+                                                        <a href="{{ route('characteristic-templates.index') }}"
+                                                            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            Plantillas de características
+                                                        </a>
+                                                        <a href=""
+                                                            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            Asignar protocolos a categorías
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -10,4 +10,14 @@ class Category extends Model
     {
         return $this->belongsTo(Area::class);
     }
+
+    public function characteristicTemplates()
+    {
+        return $this->hasMany(CharacteristicTemplate::class);
+    }
+
+    public function templates()
+    {
+        return $this->hasMany(CharacteristicTemplate::class);
+    }
 }

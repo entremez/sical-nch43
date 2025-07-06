@@ -74,13 +74,13 @@
         </div>
 
         <div class="mb-4">
-            <label for="protocolo_id" class="block">Protocolo asociado</label>
-            <select id="protocolo_id" name="protocolo_id" class="w-full rounded px-3 py-2" required></select>
+            <label class="block">Denominación comercial</label>
+            <input type="text" name="denominacion_comercial" class="w-full border rounded px-3 py-2" required>
         </div>
 
         <div class="mb-4">
-            <label class="block">Denominación comercial</label>
-            <input type="text" name="denominacion_comercial" class="w-full border rounded px-3 py-2" required>
+            <label for="protocolo_id" class="block">Protocolo asociado</label>
+            <select id="protocolo_id" name="protocolo_id" class="w-full rounded px-3 py-2" required></select>
         </div>
 
         <button class="bg-green-600 text-white px-4 py-2 rounded">Guardar</button>

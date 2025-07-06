@@ -6,6 +6,7 @@ use App\Http\Controllers\ApiScpController;
 use App\Http\Controllers\AplicationDocumentActivityController;
 use App\Http\Controllers\AplicationDocumentController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CharacteristicTemplateController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EditController;
 use App\Http\Controllers\ExportToExcelController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\PlanFileController;
 use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\ProductModelController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TechnicalCharacteristicController;
 use App\Http\Controllers\TypeCertificateController;
 use App\Http\Controllers\V2Controller;
 use App\Models\Certificate;
@@ -23,10 +25,6 @@ use App\Models\TypeCertificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
-
-Route::get('test', function () {
-    return ApiScpController::clients();
-})->name('test');
 
 
 Route::get('aplication-documents/{id}/edit-activities', [AplicationDocumentActivityController::class, 'edit'])->name('aplication-documents.edit-activities');
@@ -47,6 +45,9 @@ Route::resource('aplication-documents', AplicationDocumentController::class);
 Route::resource('certificate', CertificateController::class);
 Route::resource('product-models', ProductModelController::class);
 Route::resource('type-certificates', TypeCertificateController::class);
+Route::resource('characteristic-templates', CharacteristicTemplateController::class);
+
+
 
 
 
@@ -59,6 +60,12 @@ Route::get('/api/categorias-por-area/{area}', function ($areaId) {
     return \App\Models\Category::where('area_id', $areaId)->get(['id', 'name']);
 });
 Route::get('/api/protocolos-por-area-categoria', [ApiScpController::class, 'protocolosPorAreaYCategoria']);
+
+Route::get('/api/characteristics-by-category/{category}', function ($categoryId) {
+    return \App\Models\CharacteristicTemplate::where('category_id', $categoryId)->get();
+});
+Route::get('/characteristic-templates/category/{category}', [CharacteristicTemplateController::class, 'editByCategory'])
+    ->name('characteristic-templates.edit-category');
 
 
 
