@@ -14,7 +14,7 @@ class ProductModelController extends Controller
         $productModels = \App\Models\ProductModel::with(['brand', 'designation'])->orderBy('name')->get();
         return view('product-models.index', compact('productModels'));
     }
-    
+
     public function edit(ProductModel $productModel)
     {
         $brands = Brand::orderBy('name')->get();
@@ -34,5 +34,26 @@ class ProductModelController extends Controller
         $productModel->update($validated);
 
         return redirect()->back()->with('success', 'Modelo actualizado correctamente.');
+    }
+
+    public function buscar(Request $request)
+    {
+        $q = $request->input('q');
+
+        $modelos = ProductModel::with('brand', 'designation')
+            ->where('name', 'like', "%{$q}%")
+            ->orWhereHas('brand', fn($q2) => $q2->where('name', 'like', "%{$q}%"))
+            ->orWhereHas('designation', fn($q3) => $q3->where('name', 'like', "%{$q}%"))
+            ->limit(15)
+            ->get();
+
+        return response()->json($modelos->map(function ($m) {
+            return [
+                'id' => $m->id,
+                'marca' => $m->brand->name,
+                'modelo' => $m->name,
+                'denominacion' => $m->designation->name,
+            ];
+        }));
     }
 }

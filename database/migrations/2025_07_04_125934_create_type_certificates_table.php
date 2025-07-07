@@ -10,19 +10,25 @@ return new class extends Migration
     {
         Schema::create('type_certificates', function (Blueprint $table) {
             $table->id();
-
-            $table->unsignedBigInteger('cliente_id'); // Referencia externa (por API)
-            $table->unsignedBigInteger('fabrica_id'); // Referencia externa (por API)
-            $table->foreignId('activity_file_id')->nullable()->constrained('activity_files')->onDelete('set null');
-            $table->string('certificate')->unique();
-            $table->date('certificate_date')->unique();
+            $table->foreignId('scope_id')->nullable()->constrained()->onDelete('set null');
+            $table->text('solicitud')->nullable();
+            $table->date('fecha_solicitud')->nullable();
+            $table->string('certificate')->nullable();
+            $table->date('certificate_date')->nullable();
+            $table->text('n_sec')->nullable();
+            $table->text('cliente_id'); // Referencia externa (por API)
+            $table->text('fabrica_id'); // Referencia externa (por API)            
             $table->string('test_report_number')->nullable();
             $table->date('test_report_date')->nullable();
+            $table->text('laboratorio_id'); // Referencia externa (por API) 
             $table->tinyInteger('area');
+            $table->text('denominacion_comercial')->nullable();
+            $table->text('protocolo_id')->nullable();
+            $table->foreignId('activity_file_id')->nullable()->constrained('activity_files')->onDelete('set null');
             $table->boolean('active')->default(true);
-
             $table->timestamps();
         });
+
 
         Schema::create('type_certificate_product_model', function (Blueprint $table) {
             $table->id();

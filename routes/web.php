@@ -5,6 +5,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\ApiScpController;
 use App\Http\Controllers\AplicationDocumentActivityController;
 use App\Http\Controllers\AplicationDocumentController;
+use App\Http\Controllers\CaracteristicaController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CharacteristicTemplateController;
 use App\Http\Controllers\DocumentController;
@@ -25,6 +26,7 @@ use App\Models\TypeCertificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
+
 
 
 Route::get('aplication-documents/{id}/edit-activities', [AplicationDocumentActivityController::class, 'edit'])->name('aplication-documents.edit-activities');
@@ -66,13 +68,35 @@ Route::get('/api/characteristics-by-category/{category}', function ($categoryId)
 });
 Route::get('/characteristic-templates/category/{category}', [CharacteristicTemplateController::class, 'editByCategory'])
     ->name('characteristic-templates.edit-category');
+Route::get('/api/caracteristicas-del-protocolo/{codigo}', [CaracteristicaController::class, 'porProtocolo']);
+
+Route::get('/api/laboratorios', function (\Illuminate\Http\Request $request) {
+    $query = \App\Models\Laboratory::query();
+
+    if ($request->has('q')) {
+        $q = $request->get('q');
+        $query->where('Nombre', 'like', "%$q%");
+    }
+
+    $results = $query->limit(15)->get()->map(function ($lab) {
+        return [
+            'id' => $lab->IdLab,
+            'text' => "{$lab->Nombre} - {$lab->Pais} ({$lab->Direccion})"
+        ];
+    });
+
+    return response()->json($results);
+})->name('api.laboratorios');
+
+Route::get('/modelos', [ProductModelController::class, 'buscar'])->name('api.modelos');
+
 
 
 
 // routes/web.php o routes/api.php
 Route::get('/api/clientes', [ApiScpController::class, 'clientes'])->name('api.clientes');
 Route::get('/api/fabricas', [ApiScpController::class, 'factories'])->name('api.fabricas');
-Route::get('/api/protocolos', [App\Http\Controllers\ApiScpController::class, 'protocolosPorArea'])->name('api.protocolos');
+Route::get('/api/protocolos', [ApiScpController::class, 'protocolosPorArea'])->name('api.protocolos');
 
 
 Route::delete('/certificates/{certificate}/models/{model}', [CertificateController::class, 'detachModel'])->name('certificates.detach-model');

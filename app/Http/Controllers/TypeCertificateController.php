@@ -24,22 +24,65 @@ class TypeCertificateController extends Controller
         return view('type_certificates.create', compact('areas', 'scopes'));
     }
 
-    public function store(Request $request)
-    {
-        dd($request->all()); // Debugging line to check the request data
-        $validated = $request->validate([
-            'certificado' => 'required|unique:type_certificates,certificado',
-            'cliente_id' => 'required|integer',
-            'fabrica_id' => 'required|integer',
-            'test_report_number' => 'nullable|string',
-            'test_report_date' => 'nullable|date',
-            'area' => 'required|integer',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'scope' => 'required|integer',
+        'solicitud' => 'required|string',
+        'fecha_solicitud' => 'required|date',
+        'certificado' => 'required|unique:type_certificates,certificate',
+        'fecha_certificado' => 'required|date',
+        'sec' => 'required|string',
+        'cliente_id' => 'required|string',
+        'fabrica_id' => 'required|string',
+        'test_report_number' => 'nullable|string',
+        'test_report_date' => 'nullable|date',
+        'laboratorio_id' => 'required|string',
+        'area' => 'required|integer',
+        'denominacion_comercial' => 'required|string',
+        'protocolo_id' => 'required|string',
+        'modelos' => 'nullable|array',
+        'modelos.*' => 'exists:product_models,id',
+        'caracteristicas' => 'nullable|array',
+    ]);
 
-        TypeCertificate::create($validated);
+    // Crear el certificado
+    $cert = TypeCertificate::create([
+        'scope_id' => $validated['scope'],
+        'solicitud' => $validated['solicitud'],
+        'fecha_solicitud' => $validated['fecha_solicitud'],
+        'certificate' => $validated['certificado'],
+        'certificate_date' => $validated['fecha_certificado'],
+        'n_sec' => $validated['sec'],
+        'cliente_id' => $validated['cliente_id'],
+        'fabrica_id' => $validated['fabrica_id'],
+        'test_report_number' => $validated['test_report_number'] ?? null,
+        'test_report_date' => $validated['test_report_date'] ?? null,
+        'laboratorio_id' => $validated['laboratorio_id'],
+        'area' => $validated['area'],
+        'denominacion_comercial' => $validated['denominacion_comercial'],
+        'protocolo_id' => $validated['protocolo_id'],
+    ]);
 
-        return redirect()->route('type-certificates.index')->with('success', 'Certificado creado correctamente.');
+    // Asociar modelos si se enviaron
+    if (!empty($validated['modelos'])) {
+        $cert->productModels()->sync($validated['modelos']);
     }
+
+    // Guardar características técnicas, si corresponde (opcional)
+    if (!empty($validated['caracteristicas'])) {
+        foreach ($validated['caracteristicas'] as $templateId => $valor) {
+            $cert->characteristics()->create([
+                'characteristic_template_id' => $templateId,
+                'valor' => is_array($valor) ? json_encode($valor) : $valor,
+            ]);
+        }
+    }
+
+    return redirect()->route('type-certificates.index')->with('success', 'Certificado creado correctamente.');
+}
+
+
 
     public function show(TypeCertificate $typeCertificate)
     {

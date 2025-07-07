@@ -188,6 +188,7 @@ class ApiScpController extends Controller
                 return [
                     'id' => $p->IdProtocolo,
                     'text' => $p->Codigo . ' - ' . $p->Producto,
+                    'name' => $p->Codigo, // necesario para Select2 
                 ];
             });
 
