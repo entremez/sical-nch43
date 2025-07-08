@@ -25,9 +25,9 @@
         <tbody>
             @foreach($typeCertificates as $cert)
                 <tr class="border-t">
-                    <td class="p-2">{{ $cert->certificado }}</td>
-                    <td class="p-2">{{ $cert->cliente_id }}</td>
-                    <td class="p-2">{{ $cert->fabrica_id }}</td>
+                    <td class="p-2">{{ $cert->certificate }}</td>
+                    <td class="p-2">{{ $cert->client }}</td>
+                    <td class="p-2">{{ $cert->factory }}</td>
                     <td class="p-2 space-x-2">
                         <a href="{{ route('type-certificates.show', $cert) }}" class="text-blue-600">Ver</a>
                         <a href="{{ route('type-certificates.edit', $cert) }}" class="text-yellow-600">Editar</a>

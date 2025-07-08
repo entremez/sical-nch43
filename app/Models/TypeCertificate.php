@@ -32,4 +32,15 @@ class TypeCertificate extends Model
     {
         return $this->belongsToMany(ProductModel::class, 'type_certificate_product_model');
     }
+
+    public function getFactoryAttribute()
+    {
+        return IS_TEXTOS::where('TipoMensaje', 6)
+                        ->where('IdRelated',$this->fabrica_id)->first()->Texto;
+    }
+
+    public function getClientAttribute()
+    {
+        return Cliente::where('Rut',$this->cliente_id)->first()->RazonSocial;
+    }
 }
