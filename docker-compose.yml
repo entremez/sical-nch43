@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - laravel
+
+  web:
+    image: php:8.2-apache
+    container_name: apache_web
+    depends_on:
+      - app
+    volumes:
+      - .:/var/www/html
+      - ./docker/apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
+    ports:
+      - "80:80"
+    networks:
+      - laravel
+    command: >
+      bash -c "docker-php-ext-install pdo pdo_mysql && a2enmod rewrite && apache2-foreground"
+
+  db:
+    image: mariadb:10.4.27
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
+    networks:
+      - laravel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - db
+    networks:
+      - laravel
+
+volumes:
+  dbdata:
+
+networks:
+  laravel:
