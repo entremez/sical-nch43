@@ -10,6 +10,7 @@ use App\Http\Controllers\FormController;
 use App\Http\Controllers\MovementController;
 use App\Http\Controllers\ProductAssignmentController;
 use App\Http\Controllers\ProductModelController;
+use App\Http\Controllers\EditController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\V2Controller;
 use App\Models\Certificate;
@@ -131,6 +132,10 @@ Route::middleware('auth')->group(function () {
     })->name('sistema-dos'); 
     
     Route::resource('certificates', CertificateController::class);
+    
+    Route::get('/edit/{id}', [EditController::class, 'edit'])->name('edit');    
+    Route::post('/update/{id}', [EditController::class, 'update'])->name('update');
+    Route::get('/delete/{id}', [EditController::class, 'delete'])->name('delete');
 
 });
 

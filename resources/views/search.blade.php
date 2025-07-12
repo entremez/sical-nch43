@@ -98,8 +98,13 @@
                 <td class="px-4 py-2">
                   <div class="flex space-x-4 items-center">
                     <a href="{{ route('toPdf', $muestreo->id) }}">
-                        <img src="{{ asset('pdf.png') }}" alt="path" width="50">
+                        <img src="{{ asset('pdf.png') }}" alt="documento a PDF" width="50">
                     </a>
+                    @if(Auth::user()->role_id == 2)
+                      <a href="{{ route('edit', $muestreo->id) }}">
+                          <img src="{{ asset('editar.png') }}" alt="editar" width="50">
+                      </a>
+                    @endif
                   </div>
                 </td>
               </tr>
