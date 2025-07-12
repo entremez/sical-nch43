@@ -59,4 +59,18 @@ class Product extends Model
         return $this->belongsToMany(ServiceOrder::class, 'product_service_order', 'product_id', 'service_order_id');
     }
 
+    public function lastMovement()
+    {
+        return $this->hasOne(Movement::class)->latestOfMany();
+    }
+
+    public function movementProducts()
+    {
+        return $this->hasMany(MovementProduct::class);
+    }
+
+    public function lastMovementProduct()
+    {
+        return $this->hasOne(MovementProduct::class)->latestOfMany('id');
+    }
 }

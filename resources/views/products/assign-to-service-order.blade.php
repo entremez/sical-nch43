@@ -52,6 +52,7 @@
               <th class="px-4 py-2">Marca</th>
               <th class="px-4 py-2">Denominación</th>
               <th class="px-4 py-2">Cantidad</th>
+              <th class="px-4 py-2">Ubicación</th>
               <th class="px-4 py-2">Asignación</th>
               <th class="px-4 py-2">Desagregar</th>
             </tr>
@@ -67,6 +68,19 @@
                 <td class="px-4 py-2">{{ $product->model->brand->name }}</td>
                 <td class="px-4 py-2">{{ $product->model->designation->name }}</td>
                 <td class="px-4 py-2">{{ $product->quantity }}</td>
+                <td class="px-4 py-2">
+                  @php
+                    $lastMovementProduct = $product->movementProducts->sortByDesc('id')->first();
+                    $lastType = $lastMovementProduct?->movement?->movement_type;
+                    $location = match ($lastType) {
+                        'despacho_interno' => 'Fuera de bodega / Laboratorio',
+                        'ingreso_externo', 'ingreso_interno' => 'En bodega',
+                        default => 'En bodega - Nunca ha salido',
+                    };
+                  @endphp
+                  {{ $location }}
+                </td>
+
                 <td class="px-4 py-2">
                   @if($product->serviceOrders->isNotEmpty())
                     <div class="text-sm text-gray-700">

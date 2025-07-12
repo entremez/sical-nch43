@@ -19,8 +19,15 @@ class ProductAssignmentController extends Controller
             $guides = collect(explode(',', $guide))
                 ->map(fn($g) => trim($g))->filter()->unique()->toArray();
 
-            $products = Product::with(['movement', 'model.brand', 'model.designation', 'serviceOrders'])
-                ->whereNull('expanded') // ⬅️ solo productos no desagregados
+            $products = Product::with([
+                'movement',
+                'model.brand',
+                'model.designation',
+                'serviceOrders',
+                'movementProducts.movement' // 🆕 necesario para la ubicación
+            ])
+                ->whereNull('expanded')
+                ->whereNull('external_dispatch_id')
                 ->whereHas('movement', fn($q) => $q->whereIn('dispatch_guide', $guides))
                 ->get();
         }
@@ -29,6 +36,7 @@ class ProductAssignmentController extends Controller
 
         return view('products.assign-to-service-order', compact('products', 'guide', 'serviceOrders'));
     }
+
 
 
     public function storeAssignment(Request $request)

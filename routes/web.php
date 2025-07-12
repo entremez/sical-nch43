@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\ExportToExcelController;
@@ -13,11 +14,14 @@ use App\Http\Controllers\ProductModelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\V2Controller;
 use App\Models\Certificate;
+use App\Models\Movement;
 use App\Models\Muestreo;
 use App\Models\ServiceOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
+
+
 
 
 
@@ -45,6 +49,10 @@ Route::patch('/service-orders/{id}/mark', [ProductAssignmentController::class, '
 Route::get('/service-orders/unmarked-products', [ProductAssignmentController::class, 'unmarkedProducts'])->name('service_orders.unmarked_products');
 Route::patch('/service-orders/{id}/mark', [ProductAssignmentController::class, 'mark'])->name('service_orders.mark');
 
+Route::get('/clients/{client}/dispatchable-products', [ClientController::class, 'getDispatchableProducts']);
+
+
+
 
 
 
@@ -53,8 +61,8 @@ Route::resource('customers', CustomerController::class);
 Route::get('/api/ose/{id}/products', function ($id) {
     $ose = ServiceOrder::with([
         'products' => fn($q) =>
-            $q->whereNull('expanded')
-              ->whereDoesntHave('movement', fn($q) => $q->where('movement_type', 'despacho_interno')),
+        $q->whereNull('expanded')
+            ->whereDoesntHave('movement', fn($q) => $q->where('movement_type', 'despacho_interno')),
         'products.model.brand',
         'products.model.designation'
     ])->findOrFail($id);
@@ -66,7 +74,7 @@ Route::get('/api/ose/{id}/products-entry', function ($id) {
     $ose = App\Models\ServiceOrder::with([
         'products' => function ($q) {
             $q->whereNull('expanded')
-              ->whereHas('movements', fn($q) => $q->where('movement_type', 'despacho_interno'));;
+                ->whereHas('movements', fn($q) => $q->where('movement_type', 'despacho_interno'));;
         },
         'products.model.brand',
         'products.model.designation'
@@ -76,13 +84,29 @@ Route::get('/api/ose/{id}/products-entry', function ($id) {
 });
 
 Route::get('/api/movements/{id}/products', function ($id) {
-    $products = \App\Models\Movement::findOrFail($id)
-        ->products()
-        ->with(['model.brand', 'model.designation', 'serviceOrders'])
-        ->get();
+    $movement = Movement::with([
+        'products.model.brand',
+        'products.model.designation',
+        'products.serviceOrders',
+        'pivotMovementProduct',
+        'movementProducts.model.brand',
+        'movementProducts.model.designation',
+        'movementProducts.serviceOrders'
+    ])->findOrFail($id);
 
-    return response()->json($products);
+    $productsDirect = $movement->products->map(function ($p) {
+        return $p;
+    });
+
+    $productsPivot = $movement->movementProducts->map(function ($p) {
+        return $p;
+    });
+
+    $all = $productsDirect->merge($productsPivot)->values();
+
+    return response()->json($all);
 });
+
 
 Route::get('/movements/{id}/products', [MovementController::class, 'getProductsByMovementId']);
 
@@ -97,7 +121,7 @@ Route::middleware('auth')->group(function () {
         $muestreos_iniciados = $muestreos->filter(function ($muestreo) {
             return $muestreo->muestreo != null && $muestreo->trazabilidad == null;
         });
-        
+
         $muestreos_finalizados = $muestreos->filter(function ($muestreo) {
             return $muestreo->muestreo != null && $muestreo->trazabilidad != null;
         });
@@ -111,7 +135,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/input', function () {
         return view('preview');
-        })->name('input');
+    })->name('input');
 
     Route::post('/search', [ApiController::class, 'search'])->name('search');
     Route::post('/preview', [ApiController::class, 'preview'])->name('preview');
@@ -128,10 +152,9 @@ Route::middleware('auth')->group(function () {
         return view('sistema2', [
             'certificados' => Certificate::where('active', 1)->get()
         ]);
-    })->name('sistema-dos'); 
-    
-    Route::resource('certificates', CertificateController::class);
+    })->name('sistema-dos');
 
+    Route::resource('certificates', CertificateController::class);
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -18,6 +18,7 @@
           <th class="px-4 py-2">Denominación</th>
           <th class="px-4 py-2">Cantidad</th>
           <th class="px-4 py-2">Guía de despacho</th>
+          <th class="px-4 py-2"></th>
         </tr>
       </thead>
       <tbody>
@@ -29,6 +30,11 @@
             <td class="px-4 py-2">{{ $product->model->designation->name }}</td>
             <td class="px-4 py-2">{{ $product->quantity }}</td>
             <td class="px-4 py-2">{{ $product->movement->dispatch_guide ?? '—' }}</td>
+            <td>
+              <a class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition" href="{{ route('products.assign', ['guide' => $product->movement->dispatch_guide]) }}">
+                Asignar OSE
+              </a> 
+            </td>
           </tr>
         @endforeach
       </tbody>

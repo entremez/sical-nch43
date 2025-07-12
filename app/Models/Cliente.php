@@ -8,4 +8,9 @@ class Cliente extends Model
 {
     protected $connection = 'sqlsrv';
     protected $table = 'IS_CLIENTES';
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'IdCliente', 'cliente_id');
+    }
 }

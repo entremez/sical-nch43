@@ -15,9 +15,13 @@ class MovementController extends Controller
      */
     public function index()
     {
-        $movements = Movement::with(['customer', 'products.model']) // asume relaciones cargadas
-            ->latest()
-            ->get();
+        $movements = Movement::with([
+            'products.model.brand',
+            'products.model.designation',
+            'movementProducts.model.brand',
+            'movementProducts.model.designation'
+        ])->latest('created_at')->get();
+
 
         return view('movements.index', compact('movements'));
     }
@@ -193,18 +197,27 @@ class MovementController extends Controller
         return redirect()->route('movements.index')->with('success', 'Despacho externo registrado correctamente.');
     }
 
-public function getProductsByMovementId($movementId)
-{
-    $products = \App\Models\Product::where('movement_id', $movementId)
-        ->with([
-            'model.brand',
-            'model.designation',
-            'serviceOrders:id,order_number' // 👈 esto es clave
-        ])
-        ->get();
 
-    return response()->json($products);
-}
+    public function getProductsForMovement($id)
+    {
+        $movement = Movement::with([
+            'products.model.brand',
+            'products.model.designation',
+            'movementProducts.model.brand',
+            'movementProducts.model.designation',
+            'movementProducts.serviceOrders'
+        ])->findOrFail($id);
+
+        // Combina ambos sets
+        $productsFromDirect = $movement->products;
+        $productsFromPivot = $movement->movementProducts;
+
+
+        $allProducts = $productsFromDirect->merge($productsFromPivot)->values();
+
+        return response()->json($allProducts);
+    }
+
 
 
 
