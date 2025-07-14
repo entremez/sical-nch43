@@ -95,6 +95,8 @@ php artisan key:generate
 ### Iniciar contenedores
 
 ```bash
+sudo usermod -aG docker $USER
+Run newgrp docker in your terminal session
 docker compose up -d
 ```
 
@@ -125,6 +127,11 @@ npm run dev
 ```
 
 ---
+```bash
+sudo chmod -R ug+rw storage bootstrap/cache
+sudo chown -R www-data:www-data storage bootstrap/cache
+```
+
 
 ## ⚡ Script automático (opcional)
 
