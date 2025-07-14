@@ -15,7 +15,7 @@ class Movement extends Model
 
     public function internalProducts()
     {
-        return $this->belongsToMany(Product::class, 'movement_product');
+        return $this->belongsToMany(Product::class, 'movement_product')->withTimestamps();
     }
 
 

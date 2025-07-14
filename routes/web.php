@@ -1,31 +1,27 @@
 <?php
 
-use App\Http\Controllers\ApiController;
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\CertificateController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DesignationController;
-use App\Http\Controllers\ExportToExcelController;
-use App\Http\Controllers\FormController;
-use App\Http\Controllers\MovementController;
-use App\Http\Controllers\ProductAssignmentController;
-use App\Http\Controllers\ProductModelController;
-use App\Http\Controllers\EditController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\V2Controller;
-use App\Models\Certificate;
 use App\Models\Movement;
 use App\Models\Muestreo;
+use App\Models\Certificate;
 use App\Models\ServiceOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\V2Controller;
+use App\Http\Controllers\ApiController;
 use PHPUnit\Framework\Attributes\Group;
-
-
-
-
-
+use App\Http\Controllers\EditController;
+use App\Http\Controllers\FormController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\MovementController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\ProductModelController;
+use App\Http\Controllers\ExportToExcelController;
+use App\Http\Controllers\ProductAssignmentController;
 
 Route::get('/brands/search', [BrandController::class, 'search'])->name('brands.search');
 Route::get('/denomination/search', [DesignationController::class, 'search'])->name('denomination.search');
@@ -51,7 +47,6 @@ Route::get('/service-orders/unmarked-products', [ProductAssignmentController::cl
 Route::patch('/service-orders/{id}/mark', [ProductAssignmentController::class, 'mark'])->name('service_orders.mark');
 
 Route::get('/clients/{client}/dispatchable-products', [ClientController::class, 'getDispatchableProducts']);
-
 
 
 

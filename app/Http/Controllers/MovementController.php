@@ -13,17 +13,42 @@ class MovementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $movements = Movement::with([
-            'products.model.brand',
-            'products.model.designation',
-            'movementProducts.model.brand',
-            'movementProducts.model.designation'
-        ])->latest('created_at')->get();
+        $products = Product::with(['model.brand', 'model.designation', 'movementProducts.movement'])
+            ->when($request->filled('hideDispatched'), function ($query) {
+                $query->whereNull('external_dispatch_id');
+            })
+            ->get()
+            ->filter(function ($product) {
+                // Excluir productos que fueron base de una expansión
+                return empty($product->expanded);
+            })
+            ->map(function ($product) {
+                $lastMovement = $product->movementProducts->sortByDesc('id')->first();
 
+                $location = match ($lastMovement?->movement?->movement_type) {
+                    'despacho_interno', 'despacho_externo' => 'Fuera de bodega',
+                    'ingreso_externo', 'ingreso_interno' => 'En bodega',
+                    default => 'En bodega'
+                };
 
-        return view('movements.index', compact('movements'));
+                return [
+                    'brand' => $product->model->brand->name ?? '-',
+                    'model' => $product->model->name ?? '-',
+                    'designation' => $product->model->designation->name ?? '-',
+                    'quantity' => $product->quantity,
+                    'location' => $location,
+                    'guide' => $product->movement->dispatch_guide,
+                    'dispatched' => $product->external_dispatch_id !== null,
+                    'history' => $product->history()
+                ];
+            });
+
+        return view('movements.index', [
+            'products' => $products,
+            'hideDispatched' => $request->boolean('hideDispatched', false),
+        ]);
     }
 
     /**
@@ -172,18 +197,18 @@ class MovementController extends Controller
     public function storeExternalDispatch(Request $request)
     {
         $request->validate([
-            'cliente_id' => 'required|exists:customers,id',
-            'guia_despacho' => 'required|string|max:255',
-            'empresa' => 'required|string|max:255',
+            'client_id' => 'required|exists:customers,id',
+            'dispatch_guide' => 'required|string|max:255',
+            'company' => 'required|string|max:255',
             'products' => 'required|array|min:1',
             'products.*' => 'required|exists:products,id',
         ]);
 
         $movement = Movement::create([
-            'customer_id' => $request->cliente_id,
+            'customer_id' => $request->client_id,
             'movement_type' => 'despacho_externo',
-            'dispatch_guide' => $request->guia_despacho,
-            'company' => $request->empresa,
+            'dispatch_guide' => $request->dispatch_guide,
+            'company' => $request->company,
         ]);
 
         foreach ($request->products as $productId) {

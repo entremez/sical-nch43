@@ -66,7 +66,7 @@ class ClientController extends Controller
                 $lastMovementType = $lastMovementProduct?->movement?->movement_type ?? null;
 
                 $location = match ($lastMovementType) {
-                    'despacho_interno' => 'Fuera de bodega / Laboratorio',
+                    'despacho_interno' => 'En laboratorio',
                     'ingreso_externo', 'ingreso_interno' => 'En bodega',
                     default => 'En bodega - Nunca ha salido',
                 };
@@ -78,6 +78,7 @@ class ClientController extends Controller
                     'comments' => $movement->comments ?? '',
                     'entry_guide' => $entryGuide ?? 'N/A',
                     'location' => $location,
+                    'in_warehouse' => str_contains($location, 'bodega'),
                     'model' => [
                         'name' => $product->model->name ?? '',
                         'brand' => ['name' => $product->model->brand->name ?? ''],

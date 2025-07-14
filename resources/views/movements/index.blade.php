@@ -20,7 +20,7 @@
             Desde cliente externo (con guía de despacho)
           </a>
           <a href="{{ route('movements.create', ['type' => 'ingreso_interno']) }}"
-             class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
+            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
             Desde OCP o LAB
           </a>
         </div>
@@ -31,11 +31,11 @@
         <h2 class="text-xl font-semibold mb-4">Salida de productos desde bodega</h2>
         <div class="flex flex-col gap-3">
           <a href="{{ route('movements.create', ['type' => 'despacho_interno']) }}"
-             class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
+            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
             Hacia OCP o LAB
           </a>
           <a href="{{ route('movements.create', ['type' => 'despacho_externo']) }}"
-             class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded shadow text-center">
+            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded shadow text-center">
             Hacia cliente externo (con guía de despacho)
           </a>
         </div>
@@ -44,34 +44,49 @@
     </div>
 
     <h1 class="text-3xl font-semibold my-6">Historial de movimientos</h1>
-    <table id="movimientos" class="w-full text-sm border rounded overflow-hidden">
-      <thead class="bg-gray-100 text-left">
-        <tr>
-          <th></th>
-          <th class="px-3 py-2">Fecha</th>
-          <th class="px-3 py-2">Tipo</th>
-          <th class="px-3 py-2">Guía</th>
-          <th class="px-3 py-2">Empresa</th>
-          <th class="px-3 py-2 text-center"># Productos</th>
-          <th class="px-3 py-2 text-center"># Disponibles</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($movements as $movement)
-          <tr data-id="{{ $movement->id }}">
-            <td class="text-center"><button class="expand-btn text-blue-600 font-bold">+</button></td>
-            <td class="px-3 py-2">{{ $movement->created_at->format('d-m-Y H:i') }}</td>
-            <td class="px-3 py-2">{{ ucfirst(str_replace('_', ' ', $movement->movement_type)) }}</td>
-            <td class="px-3 py-2">{{ $movement->dispatch_guide ?? '—' }}</td>
-            <td class="px-3 py-2">{{ $movement->company ?? '—' }}</td>
-            <td class="px-3 py-2 text-center">{{ $movement->products->count() }}</td>
-            <td class="px-3 py-2 text-center">
-              {{ $movement->products->whereNull('external_dispatch_id')->whereNull('expanded')->count() }}
-            </td>
-          </tr>
-        @endforeach
-      </tbody>
-    </table>
+    <div class="flex justify-center mt-10">
+      <div class="w-full bg-white p-6 rounded-lg shadow">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-3xl font-bold">Listado individual de productos</h1>
+          <form method="GET" action="{{ route('movements.index') }}">
+            <input type="hidden" name="hideDispatched" value="{{ isset($hideDispatched) && $hideDispatched ? '0' : '1' }}">
+            <button type="submit"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              {{ isset($hideDispatched) && $hideDispatched ? 'Mostrar despachados' : 'Ocultar despachados' }}
+            </button>
+          </form>
+        </div>
+
+        <div class="w-full">
+          <table id="productTable" class="w-full text-sm border rounded table-fixed">
+            <thead class="bg-gray-100 text-left">
+              <tr>
+                <th class="px-3 py-2">Marca</th>
+                <th class="px-3 py-2">Modelo</th>
+                <th class="px-3 py-2">Denominación</th>
+                <th class="px-3 py-2">Cantidad</th>
+                <th class="px-3 py-2">Ubicación</th>
+                <th class="px-3 py-2">Guía ingreso</th>
+                <th class="px-3 py-2 w-72">Historial</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ($products as $p)
+              <tr class="{{ $p['dispatched'] ? 'bg-red-50 text-gray-500' : '' }}">
+                <td class="px-3 py-2">{{ $p['brand'] }}</td>
+                <td class="px-3 py-2">{{ $p['model'] }}</td>
+                <td class="px-3 py-2">{{ $p['designation'] }}</td>
+                <td class="px-3 py-2 text-center">{{ $p['quantity'] }}</td>
+                <td class="px-3 py-2">{{ $p['location'] }}</td>
+                <td class="px-3 py-2">{{ $p['guide'] }}</td>
+                <td class="px-3 py-2 whitespace-pre-line text-xs w-72">{{ $p['history'] }}</td>
+              </tr>
+              @endforeach
+            </tbody>
+            </table>
+        </div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -81,69 +96,17 @@
 
 @section('scripts')
 <script>
-  $(document).ready(function () {
-  const tabla = $('#movimientos').DataTable({
-    paging: true,
-    ordering: true,
-    searching: true,
-    language: {
-      url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-    }
+  $(document).ready(function() {
+    const tabla = $('#productTable').DataTable({
+      paging: true,
+      ordering: true,
+      searching: true,
+      autoWidth: false,
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+      }
+    });
+
   });
-
-  // ✅ Aquí está el cambio crítico:
-  $('#movimientos tbody').off('click', '.expand-btn').on('click', '.expand-btn', function () {
-    console.log('Expand button clicked');
-    const tr = $(this).closest('tr');
-    const row = tabla.row(tr);
-    const movementId = tr.data('id');
-
-    if (row.child.isShown()) {
-      row.child.hide();
-      $(this).text('+');
-    } else {
-      fetch(`/api/movements/${movementId}/products`)
-        .then(res => res.json())
-        .then(data => {
-          const detalle = `
-            <table class="w-full text-xs bg-gray-50 mt-2 rounded">
-              <thead>
-                <tr>
-                  <th class="px-2 py-1">Marca</th>
-                  <th class="px-2 py-1">Modelo</th>
-                  <th class="px-2 py-1">Denominación</th>
-                  <th class="px-2 py-1">Cantidad</th>
-                  <th class="px-2 py-1">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${data.map(p => {
-                  console.log('Product:', p);
-                  const estado = p.external_dispatch_id
-                    ? '<span class="text-red-600">Despachado al cliente</span>'
-                    : p.expanded
-                      ? '<span class="text-blue-600">Expandido</span>'
-                      : '<span class="text-green-600">Disponible</span>';
-
-                  return `
-                    <tr>
-                      <td class="px-2 py-1">${p.model.brand.name}</td>
-                      <td class="px-2 py-1">${p.model.name}</td>
-                      <td class="px-2 py-1">${p.model.designation.name}</td>
-                      <td class="px-2 py-1 text-center">${p.quantity}</td>
-                      <td class="px-2 py-1 text-center">${estado}</td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          `;
-          row.child(detalle).show();
-          $(this).text('−');
-        });
-    }
-  });
-});
-
 </script>
 @endsection
