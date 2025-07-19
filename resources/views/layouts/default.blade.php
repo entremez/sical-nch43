@@ -461,6 +461,9 @@
                                         <x-dropdown-link :href="route('service_orders.unmarked_products')">
                                             Productos por identificar
                                         </x-dropdown-link>
+                                        <x-dropdown-link :href="route('service_orders.unmarked_products')">
+                                            Informe de recepción de productos
+                                        </x-dropdown-link>
                                     </x-slot>
                                 </x-dropdown>
                             </div>

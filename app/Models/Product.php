@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Product extends Model
 {
@@ -13,6 +14,8 @@ class Product extends Model
         'expanded',
         'base_product_id'
     ];
+
+    protected $appends = ['location', 'disponible'];
 
     public function movement()
     {
@@ -101,10 +104,45 @@ class Product extends Model
             $fecha = $mp->movement?->created_at;
             if ($type && $fecha) {
                 $tipo = ucfirst(str_replace('_', ' ', $type));
+                if ($tipo == "Despacho externo")
+                    $tipo = "Despacho externo con guía " . $mp->movement->dispatch_guide;
                 $events[] = $fecha->format('d-m-Y') . " - Movimiento: $tipo";
             }
         }
 
         return implode("\n", $events);
+    }
+
+    public function location(): Attribute
+    {
+        return Attribute::get(function () {
+            if ($this->lastMovementProduct === null) {
+                return 'bodega';
+            }
+            $lastType = $this->lastMovementProduct->movement->movement_type ?? null;
+            return match ($lastType) {
+                'ingreso_externo' => 'bodega',
+                'ingreso_interno' => 'bodega',
+                'desagregacion' => 'bodega',
+                'despacho_interno' => 'laboratorio',
+                'despacho_externo' => 'despachado',
+                default => 'desconocido',
+            };
+        });
+    }
+
+    public function disponible(): Attribute
+    {
+        return Attribute::get(function () {
+            $lastType = $this->lastMovementProduct->movement->movement_type ?? null;
+
+            // Está disponible si aún no se ha despachado externamente
+            return $lastType !== 'despacho_externo';
+        });
+    }
+
+    public function reception()
+    {
+        return $this->hasOne(Reception::class);
     }
 }

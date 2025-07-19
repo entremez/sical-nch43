@@ -9,39 +9,66 @@
 
     <h1 class="text-3xl font-bold mb-6">Registrar movimiento de productos</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    @php
+      use Illuminate\Support\Facades\Route;
+    @endphp
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
       {{-- INGRESOS --}}
-      <div class="bg-gray-50 p-4 rounded shadow">
-        <h2 class="text-xl font-semibold mb-4">Entrada de productos a bodega</h2>
-        <div class="flex flex-col gap-3">
+      <div class="bg-white border border-blue-800 rounded-xl shadow p-6">
+        <h2 class="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Entrada de productos
+        </h2>
+        <div class="flex flex-col gap-4">
           <a href="{{ route('movements.create', ['type' => 'ingreso_externo']) }}"
-            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Desde cliente externo (con guía de despacho)
+            class="flex items-center justify-center gap-2 text-white bg-blue-800 hover:bg-blue-900 font-semibold py-4 rounded-xl transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17l-4 4m0 0l-4-4m4 4V3" />
+            </svg>
+            Ingreso desde cliente externo
           </a>
           <a href="{{ route('movements.create', ['type' => 'ingreso_interno']) }}"
-            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Desde OCP o LAB
+            class="flex items-center justify-center gap-2 text-white bg-blue-700 hover:bg-blue-800 font-semibold py-4 rounded-xl transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17l-4 4m0 0l-4-4m4 4V3" />
+            </svg>
+            Ingreso desde laboratorio u OCP
           </a>
         </div>
       </div>
 
       {{-- DESPACHOS --}}
-      <div class="bg-gray-50 p-4 rounded shadow">
-        <h2 class="text-xl font-semibold mb-4">Salida de productos desde bodega</h2>
-        <div class="flex flex-col gap-3">
+      <div class="bg-white border border-orange-500 rounded-xl shadow p-6">
+        <h2 class="text-xl font-bold text-orange-500 mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4-4m0 0l4 4m-4-4v18" />
+          </svg>
+          Salida de productos
+        </h2>
+        <div class="flex flex-col gap-4">
           <a href="{{ route('movements.create', ['type' => 'despacho_interno']) }}"
-            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Hacia OCP o LAB
+            class="flex items-center justify-center gap-2 text-white bg-orange-500 hover:bg-orange-600 font-semibold py-4 rounded-xl transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4-4m0 0l4 4m-4-4v18" />
+            </svg>
+            Despacho a laboratorio u OCP
           </a>
           <a href="{{ route('movements.create', ['type' => 'despacho_externo']) }}"
-            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded shadow text-center">
-            Hacia cliente externo (con guía de despacho)
+            class="flex items-center justify-center gap-2 text-white bg-orange-600 hover:bg-orange-700 font-semibold py-4 rounded-xl transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4-4m0 0l4 4m-4-4v18" />
+            </svg>
+            Despacho a cliente externo
           </a>
         </div>
       </div>
 
     </div>
+
 
     <h1 class="text-3xl font-semibold my-6">Historial de movimientos</h1>
     <div class="flex justify-center mt-10">

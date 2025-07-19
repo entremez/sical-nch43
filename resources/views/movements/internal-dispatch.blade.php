@@ -71,7 +71,7 @@ function agregarOSE() {
   osesAgregadas.add(oseId);
 
   // 🔽 Aquí podrías usar AJAX para obtener los productos de la OSE
-  fetch(`/api/ose/${oseId}/products`)
+  fetch(`/api/ose/${oseId}/products-dispatch`)
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById('contenedor-oses');
@@ -92,17 +92,24 @@ function agregarOSE() {
             </tr>
           </thead>
           <tbody>
-            ${data.map(prod => `
-              <tr class="border-t">
+          ${data.map(prod => {
+            const inWarehouse =  prod.location === 'bodega';
+            const disabled = inWarehouse ? '' : 'disabled';
+            const tooltip = inWarehouse ? '' : 'title="Producto fuera de bodega"';
+            const styleRow = inWarehouse ? '' : 'opacity-50 text-gray-500';
+
+            return `
+              <tr class="border-t ${styleRow}">
                 <td class="px-3 py-2">${prod.model.brand.name}</td>
                 <td class="px-3 py-2">${prod.model.name}</td>
                 <td class="px-3 py-2">${prod.model.designation.name}</td>
                 <td class="px-3 py-2">${prod.quantity}</td>
                 <td class="px-3 py-2 text-center">
-                  <input type="checkbox" name="products[]" value="${prod.id}" checked>
+                  <input type="checkbox" name="products[]" value="${prod.id}" ${disabled} ${tooltip} ${inWarehouse ? 'checked' : ''}>
                 </td>
               </tr>
-            `).join('')}
+            `;
+          }).join('')}
           </tbody>
         </table>
       `;

@@ -92,17 +92,24 @@ function agregarOSE() {
             </tr>
           </thead>
           <tbody>
-            ${data.map(prod => `
-              <tr class="border-t">
+          ${data.map(prod => {
+            const inLab = prod.location	 === 'laboratorio';
+            const disabled = inLab ? '' : 'disabled';
+            const tooltip = inLab ? '' : 'title="Producto se encuentra en bodega"';
+            const styleRow = inLab ? '' : 'opacity-50 text-gray-500';
+
+            return `
+              <tr class="border-t ${styleRow}">
                 <td class="px-3 py-2">${prod.model.brand.name}</td>
                 <td class="px-3 py-2">${prod.model.name}</td>
                 <td class="px-3 py-2">${prod.model.designation.name}</td>
                 <td class="px-3 py-2">${prod.quantity}</td>
                 <td class="px-3 py-2 text-center">
-                  <input type="checkbox" name="products[]" value="${prod.id}" checked>
+                  <input type="checkbox" name="products[]" value="${prod.id}" ${disabled} ${tooltip} ${inLab ? 'checked' : ''}>
                 </td>
               </tr>
-            `).join('')}
+            `;
+          }).join('')}
           </tbody>
         </table>
       `;

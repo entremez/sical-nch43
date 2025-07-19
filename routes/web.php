@@ -22,6 +22,8 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\ProductModelController;
 use App\Http\Controllers\ExportToExcelController;
 use App\Http\Controllers\ProductAssignmentController;
+use App\Http\Controllers\ReceptionController;
+
 
 Route::get('/brands/search', [BrandController::class, 'search'])->name('brands.search');
 Route::get('/denomination/search', [DesignationController::class, 'search'])->name('denomination.search');
@@ -37,10 +39,11 @@ Route::get('/products/unassigned', [ProductAssignmentController::class, 'unassig
 Route::resource('models', ProductModelController::class);
 Route::resource('brands', BrandController::class);
 Route::resource('designations', DesignationController::class);
-Route::resource('movements', MovementController::class);
 Route::post('/movements/internal-dispatch', [MovementController::class, 'storeInternalDispatch'])->name('movements.storeInternalDispatch');
 Route::post('/movements/internal-entry', [MovementController::class, 'storeInternalEntry'])->name('movements.storeInternalEntry');
 Route::post('/movements/external-dispatch', [MovementController::class, 'storeExternalDispatch'])->name('movements.storeExternalDispatch');
+Route::get('/movements/{id}/products', [MovementController::class, 'getProductsByMovementId']);
+Route::resource('movements', MovementController::class);
 
 Route::patch('/service-orders/{id}/mark', [ProductAssignmentController::class, 'mark'])->name('service_orders.mark');
 Route::get('/service-orders/unmarked-products', [ProductAssignmentController::class, 'unmarkedProducts'])->name('service_orders.unmarked_products');
@@ -49,31 +52,31 @@ Route::patch('/service-orders/{id}/mark', [ProductAssignmentController::class, '
 Route::get('/clients/{client}/dispatchable-products', [ClientController::class, 'getDispatchableProducts']);
 
 
+// Formulario de recepción para una orden específica
+Route::get('/receptions/{movement}/create', [ReceptionController::class, 'create'])->name('receptions.create');
+
+// Guardar recepción con informes e imágenes
+Route::post('/receptions/{movement}', [ReceptionController::class, 'store'])->name('receptions.store');
 
 
 
 Route::resource('customers', CustomerController::class);
 
-Route::get('/api/ose/{id}/products', function ($id) {
+Route::get('/api/ose/{id}/products-{type}', function ($id, $type) {
     $ose = ServiceOrder::with([
-        'products' => fn($q) =>
-        $q->whereNull('expanded')
-            ->whereDoesntHave('movement', fn($q) => $q->where('movement_type', 'despacho_interno')),
-        'products.model.brand',
-        'products.model.designation'
-    ])->findOrFail($id);
+        'products' => function ($q) use ($type) {
+            $q->whereNull('expanded');
 
-    return response()->json($ose->products);
-});
-
-Route::get('/api/ose/{id}/products-entry', function ($id) {
-    $ose = App\Models\ServiceOrder::with([
-        'products' => function ($q) {
-            $q->whereNull('expanded')
-                ->whereHas('movements', fn($q) => $q->where('movement_type', 'despacho_interno'));;
+            if ($type === 'dispatch') {
+                // Productos que aún no han sido despachados internamente
+                $q->whereDoesntHave('movement', fn($q) => $q->where('movement_type', 'despacho_interno'));
+            } elseif ($type === 'entry') {
+                // Productos que sí han sido despachados internamente
+                $q->whereHas('movements', fn($q) => $q->where('movement_type', 'despacho_interno'));
+            }
         },
         'products.model.brand',
-        'products.model.designation'
+        'products.model.designation',
     ])->findOrFail($id);
 
     return response()->json($ose->products);
@@ -104,7 +107,7 @@ Route::get('/api/movements/{id}/products', function ($id) {
 });
 
 
-Route::get('/movements/{id}/products', [MovementController::class, 'getProductsByMovementId']);
+
 
 
 Route::middleware('auth')->group(function () {

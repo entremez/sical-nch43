@@ -15,10 +15,10 @@ class MovementController extends Controller
      */
     public function index(Request $request)
     {
-        $products = Product::with(['model.brand', 'model.designation', 'movementProducts.movement'])
-            ->when($request->filled('hideDispatched'), function ($query) {
-                $query->whereNull('external_dispatch_id');
-            })
+        $products = Product::with(['model.brand', 'model.designation', 'movementProducts.movement', 'reception'])
+            ->when($request->boolean('hideDispatched'), function ($query) {
+                    $query->whereNull('external_dispatch_id');
+                })
             ->get()
             ->filter(function ($product) {
                 // Excluir productos que fueron base de una expansión
@@ -41,10 +41,10 @@ class MovementController extends Controller
                     'location' => $location,
                     'guide' => $product->movement->dispatch_guide,
                     'dispatched' => $product->external_dispatch_id !== null,
-                    'history' => $product->history()
+                    'history' => $product->history(),
+                    'has_reception' => $product->reception !== null,
                 ];
             });
-
         return view('movements.index', [
             'products' => $products,
             'hideDispatched' => $request->boolean('hideDispatched', false),

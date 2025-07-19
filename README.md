@@ -162,3 +162,6 @@ Para entrar a phpmyadmin http://localhost:8080/
 
 \\wsl$
 
+php artisan storage:link
+
+
