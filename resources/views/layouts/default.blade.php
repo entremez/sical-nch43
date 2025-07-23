@@ -432,7 +432,7 @@
                     <div class="flex items-center space-x-6">
                         <!-- Logo -->
                         <a href="{{ route('home') }}">
-                            <img src="{{ asset('logo.png') }}" alt="logo" class="h-10 max-w-[120px] object-contain">
+                            <img src="{{ asset('logo.png') }}" alt="logo" class="h-8 sm:h-10 w-auto max-w-[120px] sm:max-w-none">
                         </a>
 
                         <!-- Menú desktop (oculto en móviles) -->
@@ -533,6 +533,11 @@
                                 </x-dropdown>
                             </div>
 
+
+                        </div>
+                    </div>
+                    <!-- DERECHA: usuario y hamburguesa -->
+                    <div class="flex items-center space-x-4">
                             @if (Auth::user() != null)
                                 <!-- Settings Dropdown -->
                                 <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -574,34 +579,23 @@
                                     </x-dropdown>
                                 </div>
                             @endif
-                        </div>
-                    </div>
-                    <!-- DERECHA: usuario y hamburguesa -->
-                    <div class="flex items-center space-x-4">
-                        @if (Auth::user())
-                            <div class="hidden sm:flex items-center">
-                                <span class="text-sm text-gray-600">{{ Auth::user()->name }}</span>
-                            </div>
-                        @endif
 
                         <!-- Botón hamburguesa (visible solo en mobile) -->
+
                         <div class="sm:hidden">
-                            <button @click="open = !open"
-                                class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
-                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path :class="{ 'hidden': open }" class="inline-flex" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                    <path :class="{ 'hidden': !open }" class="hidden" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <button id="hamburgerBtn" class="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none">
+                                <!-- Icono visible por defecto -->
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                                 </svg>
                             </button>
                         </div>
+
                     </div>
                 </div>
             </div>
             <!-- MENÚ RESPONSIVE -->
-            <div :class="{ 'block': open, 'hidden': !open }"
-                class="sm:hidden flex flex-col px-4 pt-2 pb-4 space-y-2 bg-white">
+            <div id="mobileMenu" class="hidden sm:hidden px-4 pt-2 pb-4 space-y-2 bg-white">
 
                 <a href="{{ route('movements.index') }}"
                     class="block text-gray-700 px-3 py-2 rounded hover:bg-gray-100">Movimientos</a>
@@ -629,7 +623,7 @@
         </nav>
     </header>
 
-    <div class="w-full px-4">
+    <div class="w-full px-4 overflow-x-auto">
         @yield('content')
     </div>
 
@@ -639,6 +633,16 @@
             {{ date('Y') }} | Sical Ingenieros S.A.
         </div>
     </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('hamburgerBtn');
+        const menu = document.getElementById('mobileMenu');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+    });
+</script>
 
 </body>
 

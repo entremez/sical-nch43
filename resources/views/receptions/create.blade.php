@@ -18,8 +18,7 @@
                     <textarea name="products[{{ $product->id }}][report]" class="w-full border rounded p-2 mb-3"></textarea>
 
                     <label class="block mb-1 font-medium">Imágenes</label>
-                    <input type="file" name="products[{{ $product->id }}][images][]" accept="image/*" multiple capture
-                        class="mb-2" />
+                    <input type="file" name="products[{{ $product->id }}][images][]" accept="image/*" multiple class="mb-2" />
                     <small class="text-gray-500">Puedes tomar una foto o elegir una desde tu dispositivo.</small>
 
 
