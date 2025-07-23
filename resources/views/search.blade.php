@@ -88,7 +88,8 @@
           <thead>
             <tr class="bg-gray-100">
               <th class="px-4 py-2">Id proceso</th>
-              <th class="px-4 py-2">Fecha</th>
+              <th class="px-4 py-2">Fecha muestreo</th>
+              <th class="px-4 py-2">Fecha ingreso</th>
               <th class="px-4 py-2">Ver registro</th>
             </tr>
           </thead>
@@ -97,6 +98,7 @@
               <tr class="border-t">
                 <td class="px-4 py-2">{{ $muestreo->id_proceso }}</td>
                 <td class="px-4 py-2">{{ Carbon\Carbon::parse($muestreo->fecha)->format('d/m/Y') }}</td>
+                <td class="px-4 py-2">{{ Carbon\Carbon::parse($muestreo->created_at)->format('d/m/Y') }}</td>
                 <td class="px-4 py-2">
                   <div class="flex space-x-4 items-center">
                     <a href="{{ route('toPdf', $muestreo->id) }}">
