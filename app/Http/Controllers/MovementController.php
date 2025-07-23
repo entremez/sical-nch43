@@ -43,6 +43,7 @@ class MovementController extends Controller
                     'dispatched' => $product->external_dispatch_id !== null,
                     'history' => $product->history(),
                     'has_reception' => $product->reception !== null,
+                    'movement_id' => $product->movement_id,
                 ];
             });
         return view('movements.index', [

@@ -94,6 +94,7 @@
                 <th class="px-3 py-2">Cantidad</th>
                 <th class="px-3 py-2">Ubicación</th>
                 <th class="px-3 py-2">Guía ingreso</th>
+                <th class="px-3 py-2">Revisión</th>
                 <th class="px-3 py-2 w-72">Historial</th>
               </tr>
             </thead>
@@ -106,6 +107,14 @@
                 <td class="px-3 py-2 text-center">{{ $p['quantity'] }}</td>
                 <td class="px-3 py-2">{{ $p['location'] }}</td>
                 <td class="px-3 py-2">{{ $p['guide'] }}</td>
+                <td class="px-3 py-2">
+                  @if($p['has_reception'])
+                    <span class="text-green-600 font-semibold">Sí</span>
+                  @else
+                    <a href="{{ route('receptions.create', ['movement' => $p['movement_id']]) }}"
+                      class="text-blue-600 hover:underline">Registrar recepción</a>
+                  @endif
+                </td>
                 <td class="px-3 py-2 whitespace-pre-line text-xs w-72">{{ $p['history'] }}</td>
               </tr>
               @endforeach
