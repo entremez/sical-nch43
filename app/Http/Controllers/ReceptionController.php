@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ImageCategory;
 use App\Models\Movement;
 use App\Models\Reception;
 use Illuminate\Http\Request;
@@ -12,8 +13,9 @@ class ReceptionController extends Controller
     public function create(Movement $movement)
     {
         $products = $movement->products()->with('model.brand', 'model.designation')->get();
+        $categories = ImageCategory::where('active', true)->get();
 
-        return view('receptions.create', compact('movement', 'products'));
+        return view('receptions.create', compact('movement', 'products', 'categories'));
     }
 
     public function store(Request $request, Movement $movement)
