@@ -145,7 +145,7 @@
         } else {
             // No era array: generamos uno desde sicalito inicial y cantidad de muestras
             $start = (int) preg_replace('/\D/', '', (string) $texto->sicalito);
-            $count = (int) $testo->muestras;
+            $count = (int) $texto->muestras;
             $correlativos = $count > 0 ? range($start, $start + $count - 1) : [];
             $esArray = true; // << mostrará la columna Sicalitos
             $convertirAlGuardar = true; // << para que el controlador lo guarde convertido
