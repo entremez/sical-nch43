@@ -87,6 +87,13 @@ class ApiController extends Controller
         $lote = preg_replace('/[^0-9]/', '', $request['lote']);
         $samples = $request['muestras'];
 
+        // Número inicial viene de sicalito
+        $start  = (int) $request['sicalito'];
+        $count  = (int) $request['muestras'];
+
+        // Genera el array correlativo
+        $correlativos = $count > 0 ? range($start, $start + $count - 1) : [];
+
         Muestreo::updateOrCreate(['id_proceso' => $request['id_proceso']], [
             'marca' => $request['marca'],
             'modelo' => $request['modelo'],
@@ -94,7 +101,7 @@ class ApiController extends Controller
             'muestras' => $samples,
             'denominacion' => $request['denominacion'],
             'fecha' => $request['fecha'],
-            'sicalito' => $request['sicalito'],
+            'sicalito' => json_encode($correlativos),
             'year' => $request['year'],
             'fila' => $row,
             'columna' => $column,
@@ -121,6 +128,7 @@ class ApiController extends Controller
     {
         $muestreo = Muestreo::find($request->id);
         $muestreo->trazabilidad = json_encode($request->trazabilidad);
+        $muestreo->sicalito = json_encode($request->sicalito);
 
         $test = json_decode($muestreo->comentarios);
         $firma = json_decode(Auth::user()->sign);
@@ -156,7 +164,7 @@ class ApiController extends Controller
             'denominacion' => $muestreo['denominacion'],
             'marcas' => $muestreo['marca'],
             'modelos' => $muestreo['modelo'],
-            'sicalito' => intval($muestreo['sicalito']),
+            'sicalito' => $muestreo['sicalito'],
             'trazabilidad' => json_decode($muestreo['trazabilidad']),
             'fecha' => $muestreo['fecha'],
             'comentarios' => json_decode($muestreo['comentarios']),
@@ -164,7 +172,8 @@ class ApiController extends Controller
             'contacto' => $muestreo['contacto'],
             'direccion' => $muestreo['direccion'],
             'sistema' => $muestreo['sistema'],
-            'firma' => $sign
+            'firma' => $sign,
+            'year' => $muestreo['year'],
         ]);
         $pdf->output();
         $domPdf = $pdf->getDomPDF();

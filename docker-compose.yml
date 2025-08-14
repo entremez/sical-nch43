@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile          # Usa tu Dockerfile (con sqlsrv/pdo_sqlsrv)
     container_name: laravel_app
     volumes:
       - .:/var/www/html
@@ -14,7 +14,9 @@ services:
       - laravel
 
   web:
-    image: php:8.2-apache
+    build:
+      context: .
+      dockerfile: Dockerfile          # <<< ANTES era image: php:8.2-apache
     container_name: apache_web
     depends_on:
       - app
@@ -25,8 +27,6 @@ services:
       - "80:80"
     networks:
       - laravel
-    command: >
-      bash -c "docker-php-ext-install pdo pdo_mysql && a2enmod rewrite && apache2-foreground"
 
   db:
     image: mariadb:10.4.27

@@ -133,18 +133,41 @@
     @php
         $muestras = collect(json_decode($texto->muestreo, true))->where('valido', true)->values();
         $trazabilidad = json_decode($texto->trazabilidad);
+
+        // Normaliza sicalito a array
+        $raw = $texto->sicalito;
+        $decoded = is_array($raw) ? $raw : json_decode($raw, true);
+
+        if (is_array($decoded)) {
+            $esArray = true;
+            $correlativos = array_values($decoded);
+            $convertirAlGuardar = false; // ya es array
+        } else {
+            // No era array: generamos uno desde sicalito inicial y cantidad de muestras
+            $start = (int) preg_replace('/\D/', '', (string) $texto->sicalito);
+            $count = (int) $testo->muestras;
+            $correlativos = $count > 0 ? range($start, $start + $count - 1) : [];
+            $esArray = true; // << mostrará la columna Sicalitos
+            $convertirAlGuardar = true; // << para que el controlador lo guarde convertido
+        }
     @endphp
 
     <div class="space-y-4">
-        <div class="grid grid-cols-4 gap-2 font-semibold text-gray-700 mb-2 mt-4">
+        <div class="grid grid-cols-5 gap-2 font-semibold text-gray-700 mb-2 mt-4">
             <div>#</div>
+            <div>Sicalitos</div>
             <div>Número tabla</div>
             <div>Trazabilidad</div>
             <div></div>
         </div>
         @foreach ($muestras as $key => $muestra)
-        <div id="{{ $key }}" class="grid grid-cols-4 gap-2 items-center">
+                <div id="{{ $key }}" class="grid grid-cols-5 gap-2 items-center fila-muestra"
+                    data-index="{{ $key }}">
             <input type="text" id="index_{{ $key }}" value="{{ $key + 1 }}" disabled class="border rounded p-2 bg-gray-100 text-center">
+
+            <input type="text" name="sicalito[]" id="sicalito_{{ $key }}" value="{{ $correlativos[$key] }}"
+                        class="border rounded p-2">
+
             <input type="text" id="valor_{{ $key }}" value="{{ $muestra['valor_final'] }}" disabled class="border rounded p-2 bg-gray-100">
             <input type="text" name="trazabilidad[]" id="trazabilidad_{{ $key }}" placeholder="Fecha, número de serie o sello" required class="border rounded p-2" value="{{ isset($trazabilidad[$key]) ? $trazabilidad[$key] : '' }}">
             <div class="flex items-center">
@@ -169,12 +192,28 @@
 </form>
 @endsection
 
+
 <script>
-    function getValue(id){
-        const valor = document.getElementById(id).children[2].value;
-        const muestras = document.getElementById('muestras').value;
-        for (var i = id+1; i < muestras; i++) {
-            document.getElementById(i).children[2].value = valor;
+    function getValue(idx) {
+        // Fila origen
+        const row = document.getElementById(String(idx));
+        if (!row) return;
+
+        // Toma SIEMPRE el input de trazabilidad dentro de la fila
+        const source = row.querySelector('input[name="trazabilidad[]"]');
+        if (!source) return;
+
+        const valor = source.value;
+
+        // Itera todas las filas que siguen
+        const rows = document.querySelectorAll('.fila-muestra');
+        for (let i = idx + 1; i < rows.length; i++) {
+            const nextRow = document.getElementById(String(i));
+            if (!nextRow) continue;
+            const target = nextRow.querySelector('input[name="trazabilidad[]"]');
+            if (target && !target.disabled) {
+                target.value = valor;
+            }
         }
     }
 </script>

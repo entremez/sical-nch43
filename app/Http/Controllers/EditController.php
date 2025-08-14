@@ -26,6 +26,7 @@ class EditController extends Controller
         $muestreo->lote = $request->lote;
         $muestreo->denominacion = $request->denominacion;
         $muestreo->fecha = $request->fecha;
+        $muestreo->sicalito = $request->sicalito;
 
         $xyz[0] = $request->equis;
         $xyz[1] = $request->ye;

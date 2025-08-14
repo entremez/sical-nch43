@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('muestras')->nullable();
             $table->string('denominacion')->nullable();
             $table->date('fecha')->nullable();
-            $table->integer('sicalito')->nullable();
+            $table->string('sicalito')->nullable();
             $table->integer('year')->nullable();
             $table->text('trazabilidad')->nullable();
             $table->text('muestreo')->nullable();
