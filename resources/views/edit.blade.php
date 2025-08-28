@@ -177,6 +177,51 @@
         </div>
         @endforeach
     </div>
+
+
+    {{-- Números descartados (no válidos) --}}
+@php
+    // Tomamos el JSON de muestreo y filtramos los no válidos
+    $descartados = collect(json_decode($texto->muestreo, true))
+        ->filter(function ($item) {
+            return isset($item['valido']) && $item['valido'] === false;
+        })
+        ->values();
+@endphp
+
+@if($descartados->isNotEmpty())
+    <div class="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <h3 class="text-lg font-semibold mb-2">Números de tabla descartados</h3>
+        <p class="text-sm text-gray-700 mb-3">
+            Se listan las lecturas marcadas como <em>no válidas</em> y el motivo del descarte.
+        </p>
+
+        <ul class="text-sm list-disc pl-5 space-y-1">
+            @foreach($descartados as $d)
+                @php
+                    $numero = $d['valor_final'];
+                    $motivo = $d['comentario'];
+                @endphp
+                <li>
+                    Nº {{ $numero }} — {{ $motivo }}
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<div class="mt-6 border-l-4 border-amber-500 bg-amber-50 p-4 rounded-md">
+  <p class="text-l text-amber-900">
+    <span class="font-semibold">Atención:</span>
+    Si se modificó el lote, verifique que no se hayan descartado números que con el nuevo lote serían válidos ni se hayan aceptado números que dejarían de serlo. 
+    De presentarse este caso, eliminar el registro y rehacer el muestreo.
+  </p>
+</div>
+
+
+
+
+
     <div class="mt-8 flex justify-end items-center">
         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow">
             Guardar cambios
