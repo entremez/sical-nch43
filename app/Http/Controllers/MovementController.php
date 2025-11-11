@@ -245,6 +245,10 @@ class MovementController extends Controller
     }
 
 
+    public function quick()
+        {
+            return view('movements.quick'); // resources/views/movements/quick.blade.php
+        }
 
 
 

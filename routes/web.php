@@ -162,4 +162,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('certificates', CertificateController::class);
 });
 
+Route::get('/movimientos/rapido', [\App\Http\Controllers\MovementController::class, 'quick'])
+    ->name('movements.quick');
+
 require __DIR__ . '/auth.php';
