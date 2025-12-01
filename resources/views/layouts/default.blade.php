@@ -440,6 +440,13 @@
                                     </x-nav-link>
                                 </div>
                             @endif
+                            @if(Auth::user()->role_id == 2)
+                                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                    <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
+                                    Firmas asignadas
+                                    </x-nav-link>
+                                </div>
+                            @endif
                         </div>
             
                         @if(Auth::user() != null)

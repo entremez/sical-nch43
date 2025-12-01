@@ -19,6 +19,14 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    
+    Route::put('/profile/firmas', [ProfileController::class, 'updateFirmas'])
+        ->name('profile.firmas.update');
+    Route::get('/profile/firmas/{user}/create', [ProfileController::class, 'createFirma'])
+        ->name('profile.firma.create');
+    Route::post('/profile/firmas/{user}', [ProfileController::class, 'storeFirma'])
+        ->name('profile.firma.store');
+
     Route::get('/', function () {
         $muestreos = Muestreo::orderBy('created_at', 'desc')->get();
         $muestreos_iniciados = $muestreos->filter(function ($muestreo) {
