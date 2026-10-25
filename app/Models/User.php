@@ -56,6 +56,12 @@ class User extends Authenticatable
         return $this->role && $this->role->name === $role;
     }
 
+    // Ver, crear y editar certificados de sistema 2: todos menos viewer
+    public function canManageCertificates()
+    {
+        return $this->role_id != 3;
+    }
+
 // app/Models/User.php
 
     public static function getUniqueSigns()

@@ -12,6 +12,8 @@ class CertificateController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorizeCertificates($request);
+
         $query = Certificate::query();
     
         if ($request->has('search')) {
@@ -41,10 +43,7 @@ class CertificateController extends Controller
      */
     public function create(Request $request)
     {
-        // Solo admin
-        if ($request->user()->role_id !== 2) {
-            abort(404);
-        }
+        $this->authorizeCertificates($request);
 
         return view('certificates.create');
     }
@@ -54,10 +53,7 @@ class CertificateController extends Controller
      */
     public function store(Request $request)
     {
-        // Solo admin
-        if ($request->user()->role_id !== 2) {
-            abort(404);
-        }
+        $this->authorizeCertificates($request);
 
         $validated = $request->validate([
             // Formato E-022-03-12345 o CL-022-03-1234; el segundo bloque es el sistema que usa el muestreo
@@ -91,8 +87,10 @@ class CertificateController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
+        $this->authorizeCertificates($request);
+
         $certificate = Certificate::findOrFail($id);
 
         return view('certificates.show', compact('certificate'));
@@ -111,6 +109,8 @@ class CertificateController extends Controller
      */
     public function update(Request $request, Certificate $certificate)
     {
+        $this->authorizeCertificates($request);
+
         $validated = $request->validate([
             'cliente' => 'required|string',
             'contacto' => 'required|string',
@@ -138,5 +138,12 @@ class CertificateController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function authorizeCertificates(Request $request)
+    {
+        if (!$request->user()->canManageCertificates()) {
+            abort(404);
+        }
     }
 }

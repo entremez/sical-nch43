@@ -24,7 +24,7 @@
     </button>
   </form>
 
-  @if(auth()->user()->role_id === 2)
+  @if(auth()->user()->canManageCertificates())
     <a href="{{ route('certificates.create') }}"
        class="inline-flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
       Nuevo certificado
