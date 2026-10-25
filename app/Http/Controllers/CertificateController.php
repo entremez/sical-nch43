@@ -39,9 +39,14 @@ class CertificateController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        // Solo admin
+        if ($request->user()->role_id !== 2) {
+            abort(404);
+        }
+
+        return view('certificates.create');
     }
 
     /**
@@ -49,7 +54,38 @@ class CertificateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Solo admin
+        if ($request->user()->role_id !== 2) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            // Formato E-022-03-12345 o CL-022-03-1234; el segundo bloque es el sistema que usa el muestreo
+            'certificado' => ['required', 'string', 'regex:/^[A-Z]{1,3}-\d{3}-\d{2}-\d+$/', 'unique:certificates,certificado'],
+            'qr' => 'nullable|string',
+            'cliente' => 'required|string',
+            'contacto' => 'nullable|string',
+            'direccion' => 'nullable|string',
+            'fabrica' => 'nullable|string',
+            'direccion_fabrica' => 'nullable|string',
+            'producto' => 'required|string',
+            'marca' => 'required|string',
+            'modelo' => 'required|string',
+            'active' => 'required|boolean',
+        ], [
+            'required' => 'El campo :attribute es obligatorio.',
+            'certificado.regex' => 'El N° de certificado debe tener el formato E-022-03-12345, G-022-03-1234 o CL-022-03-1234.',
+            'certificado.unique' => 'Ya existe un certificado con ese número.',
+        ]);
+
+        // Las columnas no aceptan NULL: los campos opcionales vacíos se guardan como texto vacío
+        $certificate = Certificate::create(array_map(fn ($value) => $value ?? '', $validated) + [
+            'area' => 1,
+        ]);
+
+        return redirect()
+            ->route('certificates.index', ['search' => $certificate->certificado])
+            ->with('success', 'Certificado creado correctamente.');
     }
 
     /**
